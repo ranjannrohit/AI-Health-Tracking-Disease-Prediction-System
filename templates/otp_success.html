@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="success-container">
+    <div class="success-box">
+        <div class="checkmark-circle">
+            <div class="checkmark"></div>
+        </div>
+
+        <h2>Registered Successfully 🎉</h2>
+        <p>Your account has been verified.</p>
+        <p>Redirecting to login...</p>
+    </div>
+</div>
+
+<style>
+.success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.success-box {
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.checkmark-circle {
+    width: 100px;
+    height: 100px;
+    background: #22c55e;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 20px;
+    animation: pop 0.5s ease forwards;
+}
+
+.checkmark {
+    width: 25px;
+    height: 50px;
+    border-right: 5px solid white;
+    border-bottom: 5px solid white;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 20px;
+    left: 35px;
+}
+
+@keyframes pop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+
+<script>
+setTimeout(function(){
+    window.location.href = "/login";
+}, 2500);
+</script>
+
+{% endblock %}

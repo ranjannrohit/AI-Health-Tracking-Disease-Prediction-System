@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+/* ===============================
+   HEART PREDICTION SECTION
+================================ */
+
+.heart-section {
+    min-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Soft medical glow background */
+.heart-section::before {
+    content: "";
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(239,68,68,0.15), transparent 70%);
+    top: -200px;
+    right: -200px;
+    animation: floatGlow 12s ease-in-out infinite alternate;
+}
+
+/* Card */
+.heart-card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--card);
+    border-radius: 22px;
+    border: 1px solid var(--border);
+    padding: 50px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12);
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.8s ease forwards;
+}
+
+/* Header */
+.heart-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.heart-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(135deg,#EF4444,#DC2626);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    box-shadow: 0 15px 35px rgba(239,68,68,0.4);
+}
+
+.heart-icon i {
+    color: white;
+    width: 28px;
+    height: 28px;
+}
+
+.heart-header h2 {
+    margin-top: 15px;
+    font-size: 24px;
+}
+
+/* Inputs */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.heart-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    margin-top: 6px;
+}
+
+.heart-input:focus {
+    outline: none;
+    border-color: #EF4444;
+    box-shadow: 0 0 0 4px rgba(239,68,68,0.15);
+}
+
+/* Button */
+.heart-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg,#EF4444,#DC2626);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 20px 40px rgba(239,68,68,0.4);
+}
+
+.heart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 30px 60px rgba(239,68,68,0.5);
+}
+
+/* Result Box */
+.result-box {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    animation: fadeUp 0.6s ease;
+}
+
+.result-box h3 {
+    margin-bottom: 8px;
+}
+
+/* Animations */
+@keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to { opacity:1; transform: translateY(0); }
+}
+
+@keyframes floatGlow {
+    from { transform: translate(0,0); }
+    to { transform: translate(-40px,40px); }
+}
+
+</style>
+
+<div class="heart-section">
+
+    <div class="heart-card">
+
+        <div class="heart-header">
+            <div class="heart-icon">
+                <i data-lucide="heart-pulse"></i>
+            </div>
+            <h2>Heart Disease Risk Assessment</h2>
+        </div>
+
+        <form method="POST">
+
+            <div class="input-group">
+                <label>Age</label>
+                <input type="number" name="age" required class="heart-input">
+            </div>
+
+            <div class="input-group">
+                <label>Resting Blood Pressure</label>
+                <input type="number" name="trestbps" required class="heart-input">
+            </div>
+
+            <div class="input-group">
+                <label>Cholesterol</label>
+                <input type="number" name="chol" required class="heart-input">
+            </div>
+
+            <div class="input-group">
+                <label>Max Heart Rate</label>
+                <input type="number" name="thalach" required class="heart-input">
+            </div>
+
+            <div class="input-group">
+                <label>Oldpeak</label>
+                <input type="number" step="0.1" name="oldpeak" required class="heart-input">
+            </div>
+
+            <!-- GPS Hidden Fields -->
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+
+            <button type="submit" class="heart-btn">
+                Predict Heart Risk
+            </button>
+
+        </form>
+
+        {% if result %}
+        <div class="result-box">
+            <h3>Result: {{ result }}</h3>
+            <h3>Probability: {{ probability }}%</h3>
+            <h3>Risk Level: {{ risk_level }}</h3>
+
+            {% if recommendation %}
+            <h3>Recommendation:</h3>
+            <p>{{ recommendation }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+lucide.createIcons();
+
+/* ===============================
+   GPS LOCATION CAPTURE
+================================ */
+
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+        },
+        function(error) {
+            console.log("Location access denied.");
+        }
+    );
+}
+</script>
+
+{% endblock %}

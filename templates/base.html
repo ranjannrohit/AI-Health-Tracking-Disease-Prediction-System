@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HealthTrackk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Prevent dark mode flicker before page loads -->
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --primary: #1E3A8A;
+            --accent: #0EA5A4;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text: #0F172A;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+        }
+
+        html.dark {
+            --bg: #0F172A;
+            --card: #1E293B;
+            --text: #F1F5F9;
+            --text-light: #94A3B8;
+            --border: rgba(255,255,255,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* NAVBAR */
+
+        nav {
+            background: var(--card);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+.lang-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.lang-btn:hover {
+    background: var(--border);
+}
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* LANGUAGE DROPDOWN */
+
+        .language-dropdown {
+            position: relative;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .lang-btn:hover {
+            color: var(--primary);
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            min-width: 170px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        .lang-menu a {
+            padding: 10px 15px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .lang-menu a:hover {
+            background: var(--border);
+        }
+
+        .language-dropdown:hover .lang-menu {
+            display: flex;
+        }
+
+        /* DARK MODE BUTTON */
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+        }
+
+        /* FOOTER */
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+/* NAV AUTH BUTTON COLORS */
+
+.nav-links a[href="/login"],
+.nav-links a[href="/register"] {
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+/* Login button */
+.nav-links a[href="/login"] {
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+
+.nav-links a[href="/login"]:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Register button */
+.nav-links a[href="/register"] {
+    background: var(--primary);
+    color: white;
+}
+
+.nav-links a[href="/register"]:hover {
+    opacity: 0.9;
+}
+
+/* Start Free Assessment button fix */
+.btn-primary {
+    background: var(--primary);
+    color: white !important;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+        /* MOBILE */
+
+        @media (max-width: 900px) {
+            .nav-links a span {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <div class="container nav-inner">
+        <div class="logo">HealthTrackk</div>
+
+        <div class="nav-links">
+
+            <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                <i data-lucide="home"></i>
+                <span>{{ _("Home") }}</span>
+            </a>
+
+            <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">
+                <i data-lucide="layout-dashboard"></i>
+                <span>{{ _("Dashboard") }}</span>
+            </a>
+
+            <a href="/chatbot" class="{% if request.path == '/chatbot' %}active{% endif %}">
+                <i data-lucide="bot"></i>
+                <span>{{ _("AI Assistant") }}</span>
+            </a>
+
+            {% if "user_id" in session %}
+
+                <span style="font-weight:600;">
+                    Hi {{ session["user_name"] }} 👋
+                </span>
+
+                <a href="/logout">
+                    <i data-lucide="log-out"></i>
+                    <span>{{ _("Logout") }}</span>
+                </a>
+
+            {% else %}
+
+                <a href="/login">
+                    <i data-lucide="log-in"></i>
+                    <span>{{ _("Login") }}</span>
+                </a>
+
+                <a href="/register">
+                    <i data-lucide="user-plus"></i>
+                    <span>{{ _("Register") }}</span>
+                </a>
+
+            {% endif %}
+
+            <!-- LANGUAGE DROPDOWN -->
+            <div class="language-dropdown">
+    <button class="lang-btn">
+        ENG
+        <i data-lucide="chevron-down"></i>
+    </button>
+
+
+                <div class="lang-menu">
+                    <a href="/change-language/en">🇬🇧 English</a>
+                    <a href="/change-language/hi">🇮🇳 हिन्दी</a>
+                    <a href="/change-language/mr">🇮🇳 मराठी</a>
+                </div>
+            </div>
+
+            <button id="themeToggle" class="theme-btn">
+                <i id="themeIcon" data-lucide="moon"></i>
+            </button>
+
+        </div>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<footer>
+    {{ _("© 2026 HealthTrackk — Smarter Health Decisions.") }}
+</footer>
+
+<script>
+lucide.createIcons();
+
+/* Apply saved theme */
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark");
+    document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
+    lucide.createIcons();
+}
+
+/* Toggle theme */
+document.getElementById("themeToggle").addEventListener("click", function () {
+
+    document.documentElement.classList.toggle("dark");
+
+    if (document.documentElement.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+        document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
+    } else {
+        localStorage.setItem("theme", "light");
+        document.getElementById("themeIcon").setAttribute("data-lucide", "moon");
+    }
+
+    lucide.createIcons();
+});
+</script>
+
+</body>
+</html>

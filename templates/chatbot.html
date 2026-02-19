@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+/* ===========================
+   CHAT SECTION
+=========================== */
+
+.chat-section {
+    min-height: 90vh;
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Chat Container */
+
+.chat-container {
+    width: 100%;
+    max-width: 900px;
+    height: 650px;
+    background: var(--card);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+
+.chat-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.chat-header-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#0EA5A4,#0F766E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-header-icon i {
+    color: white;
+}
+
+/* Body */
+
+.chat-body {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: var(--bg);
+    scroll-behavior: smooth;
+}
+
+/* Messages */
+
+.message {
+    margin-bottom: 18px;
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    font-size: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.user {
+    margin-left: auto;
+    background: linear-gradient(135deg,#2563EB,#1E40AF);
+    color: white;
+}
+
+.bot {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+.message i {
+    width: 18px;
+    height: 18px;
+}
+
+/* Typing cursor */
+
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #0EA5A4;
+    margin-left: 4px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* Input */
+
+.chat-form {
+    border-top: 1px solid var(--border);
+    padding: 20px;
+    background: var(--card);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+}
+
+.voice-btn, .send-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-btn {
+    background: #0EA5A4;
+    color: white;
+}
+
+.send-btn {
+    background: #2563EB;
+    color: white;
+}
+
+.voice-btn:hover,
+.send-btn:hover {
+    transform: translateY(-2px);
+}
+
+</style>
+
+<div class="chat-section">
+
+<div class="chat-container">
+
+    <div class="chat-header">
+        <div class="chat-header-icon">
+            <i data-lucide="bot"></i>
+        </div>
+        <div>
+            <h3 style="margin:0;">AI Health Assistant</h3>
+            <small style="color:var(--text-light);">
+                Real-time Medical Intelligence
+            </small>
+        </div>
+    </div>
+
+    <div class="chat-body" id="chatBody"></div>
+
+    <form id="chatForm" class="chat-form">
+
+        <div class="chat-input-wrapper">
+
+            <input type="text"
+                   id="chatInput"
+                   name="message"
+                   placeholder="Ask health related question..."
+                   required
+                   class="chat-input">
+
+            <button type="button" id="voiceBtn" class="voice-btn">
+                <i data-lucide="mic"></i>
+            </button>
+
+            <button type="submit" class="send-btn">
+                <i data-lucide="send"></i>
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+<script>
+lucide.createIcons();
+
+const form = document.getElementById("chatForm");
+const input = document.getElementById("chatInput");
+const chatBody = document.getElementById("chatBody");
+
+/* Auto scroll */
+function scrollBottom() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+/* Add message */
+function addMessage(text, type) {
+
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", type);
+
+    const icon = document.createElement("i");
+    icon.setAttribute("data-lucide", type === "user" ? "user" : "bot");
+
+    const textDiv = document.createElement("div");
+    textDiv.innerHTML = text;
+
+    msgDiv.appendChild(icon);
+    msgDiv.appendChild(textDiv);
+
+    chatBody.appendChild(msgDiv);
+
+    lucide.createIcons();
+    scrollBottom();
+}
+
+/* GPT Style Typing */
+function typeBotMessage(text) {
+
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", "bot");
+
+    const icon = document.createElement("i");
+    icon.setAttribute("data-lucide", "bot");
+
+    const textDiv = document.createElement("div");
+
+    msgDiv.appendChild(icon);
+    msgDiv.appendChild(textDiv);
+
+    chatBody.appendChild(msgDiv);
+
+    lucide.createIcons();
+
+    let i = 0;
+
+    function type() {
+        if (i < text.length) {
+            textDiv.innerHTML = text.substring(0, i + 1) +
+                '<span class="cursor"></span>';
+            i++;
+            scrollBottom();
+            setTimeout(type, 15);
+        } else {
+            textDiv.innerHTML = text;
+        }
+    }
+
+    type();
+}
+
+/* AJAX submit */
+form.addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    fetch("/chatbot", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "message=" + encodeURIComponent(message)
+    })
+    .then(response => response.json())
+    .then(data => {
+        typeBotMessage(data.bot);
+    });
+
+});
+
+/* Voice input */
+if ('webkitSpeechRecognition' in window) {
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+
+    document.getElementById("voiceBtn")
+        .addEventListener("click", () => {
+            recognition.start();
+        });
+
+    recognition.onresult = function(event) {
+        input.value = event.results[0][0].transcript;
+    };
+}
+
+</script>
+
+{% endblock %}

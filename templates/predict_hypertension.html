@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hypertension Prediction</title>
+</head>
+<body>
+
+<h2>Hypertension Prediction</h2>
+
+<form method="POST">
+    <label>Systolic BP:</label>
+    <input type="number" name="systolic" required><br><br>
+
+    <label>Diastolic BP:</label>
+    <input type="number" name="diastolic" required><br><br>
+
+    <button type="submit">Predict</button>
+</form>
+
+{% if result %}
+    <h3>Result: {{ result }}</h3>
+    <h3>Probability: {{ probability }}%</h3>
+    <h3>Risk Level: {{ risk_level }}</h3>
+{% endif %}
+{% if recommendation %}
+    <h3>Recommendation:</h3>
+    <p>{{ recommendation }}</p>
+{% endif %}
+
+
+<br>
+<a href="/">Back to Home</a>
+
+</body>
+</html>

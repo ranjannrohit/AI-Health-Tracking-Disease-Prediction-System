@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section style="padding:40px 0;">
+<div class="container">
+
+<div style="display:flex; gap:30px;">
+
+    <!-- SIDEBAR -->
+    <div style="width:240px;">
+
+        <div class="card" style="padding:20px;">
+
+            <h3 style="margin-bottom:20px;">
+                Hi {{ session["user_name"] }}
+            </h3>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+
+                <a href="/dashboard?tab=overview"
+                   class="tab-link {% if active_tab == 'overview' %}active-tab{% endif %}">
+                   Overview
+                </a>
+
+                <a href="/dashboard?tab=records"
+                   class="tab-link {% if active_tab == 'records' %}active-tab{% endif %}">
+                   Medical Records
+                </a>
+
+                <a href="/dashboard?tab=vaccinations"
+                   class="tab-link {% if active_tab == 'vaccinations' %}active-tab{% endif %}">
+                   Vaccinations
+                </a>
+
+                <a href="/dashboard?tab=profile"
+                   class="tab-link {% if active_tab == 'profile' %}active-tab{% endif %}">
+                   Health Profile
+                </a>
+
+                <a href="/dashboard?tab=assistant"
+                   class="tab-link {% if active_tab == 'assistant' %}active-tab{% endif %}">
+                   AI Assistant
+                </a>
+
+                <a href="/dashboard?tab=emergency"
+                   class="tab-link {% if active_tab == 'emergency' %}active-tab{% endif %}">
+                   Emergency
+                </a>
+
+                <a href="/logout">Logout</a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div style="flex:1;">
+
+        {% if active_tab == "overview" %}
+
+            <div class="card" style="padding:30px; margin-bottom:30px;">
+                <h2>Health Score</h2>
+                <h1 style="font-size:60px;">{{ health_score }}/100</h1>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;">
+
+                {% for p in predictions %}
+                <div class="card" style="padding:20px;">
+                    <h3>{{ p[0] }}</h3>
+                    <p>Risk: {{ p[2] }}</p>
+                    <p>Probability: {{ (p[1] * 100) | round(2) }}%</p>
+                </div>
+                {% endfor %}
+
+            </div>
+
+        {% elif active_tab == "records" %}
+
+            <div class="card" style="padding:30px;">
+                <h2>Medical Records</h2>
+                <p>Feature Coming Next Step</p>
+            </div>
+
+        {% elif active_tab == "vaccinations" %}
+
+            <div class="card" style="padding:30px;">
+                <h2>Vaccination Tracker</h2>
+                <p>Feature Coming Next Step</p>
+            </div>
+
+        {% elif active_tab == "profile" %}
+
+            <div class="card" style="padding:30px;">
+                <h2>Health Profile</h2>
+                <p>Feature Coming Next Step</p>
+            </div>
+
+        {% elif active_tab == "assistant" %}
+
+            <div class="card" style="padding:30px;">
+                <h2>AI Assistant</h2>
+                <p>Integrated chatbot panel here.</p>
+            </div>
+
+        {% elif active_tab == "emergency" %}
+
+            <div class="card" style="padding:30px;">
+                <h2>Emergency Panel</h2>
+                <button style="background:red; color:white; padding:15px 30px; border:none; border-radius:8px;">
+                    PANIC
+                </button>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</div>
+</section>
+
+<style>
+.tab-link {
+    text-decoration:none;
+    padding:8px 12px;
+    border-radius:6px;
+    color:#64748B;
+}
+
+.active-tab {
+    background:#1E3A8A;
+    color:white;
+}
+</style>
+
+{% endblock %}

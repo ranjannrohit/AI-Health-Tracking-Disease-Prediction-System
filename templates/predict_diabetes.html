@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Diabetes Risk Analysis</h2>
+
+<div class="card">
+    <form method="POST">
+        <input type="number" name="glucose" placeholder="Glucose Level" required>
+        <input type="number" name="blood_pressure" placeholder="Blood Pressure" required>
+        <input type="number" step="0.1" name="bmi" placeholder="BMI" required>
+        <input type="number" name="age" placeholder="Age" required>
+        <button class="btn">Analyze Risk</button>
+    </form>
+
+    {% if result %}
+    <div class="result-box">
+        <h3>{{ result }}</h3>
+        <p>Probability: {{ probability }}%</p>
+        <p>Risk Level: {{ risk_level }}</p>
+        <p><strong>Recommendation:</strong> {{ recommendation }}</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
