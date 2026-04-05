@@ -2,45 +2,131 @@
 {% block content %}
 
 <style>
-
 /* ===============================
-   BACKGROUND MEDICAL VISUALS
+   PAGE
 ================================ */
 
 .auth-section {
-    min-height: 90vh;
+    min-height: calc(100vh - 86px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px;
+    padding: 40px 20px;
     position: relative;
     overflow: hidden;
+    background:
+        radial-gradient(circle at top left, rgba(14,165,164,0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(37,99,235,0.18), transparent 28%);
 }
 
-/* Soft medical gradient */
-.auth-section::before {
+/* Animated glow blobs */
+.auth-section::before,
+.auth-section::after {
     content: "";
     position: absolute;
-    width: 800px;
-    height: 800px;
-    background: radial-gradient(circle, rgba(14,165,164,0.15), transparent 70%);
-    top: -200px;
-    left: -200px;
-    animation: floatGlow 10s ease-in-out infinite alternate;
+    border-radius: 50%;
+    filter: blur(10px);
+    pointer-events: none;
+    z-index: 0;
 }
 
-/* Floating Medical Icons */
+.auth-section::before {
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(14,165,164,0.35), transparent 70%);
+    top: -100px;
+    left: -100px;
+    animation: floatGlowA 10s ease-in-out infinite alternate;
+}
+
+.auth-section::after {
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(37,99,235,0.30), transparent 70%);
+    bottom: -120px;
+    right: -120px;
+    animation: floatGlowB 12s ease-in-out infinite alternate;
+}
+
+/* ECG line */
+.ecg-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.ecg-bg svg {
+    width: 100%;
+    height: 100%;
+}
+
+.ecg-line {
+    fill: none;
+    stroke: #22C55E;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1800;
+    stroke-dashoffset: 1800;
+    animation: ecgDraw 7s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(34,197,94,0.55));
+}
+
+/* Floating medical icons */
 .bg-icon {
     position: absolute;
-    font-size: 40px;
-    opacity: 0.07;
+    opacity: 0.16;
+    z-index: 0;
     animation: float 8s ease-in-out infinite;
+    color: var(--text);
 }
 
-.bg-icon.heart { top: 20%; left: 10%; }
-.bg-icon.plus { top: 60%; left: 80%; animation-delay:2s; }
-.bg-icon.shield { top: 75%; left: 20%; animation-delay:1s; }
-.bg-icon.brain { top: 30%; left: 75%; animation-delay:3s; }
+.bg-icon i {
+    width: 42px;
+    height: 42px;
+}
+
+.bg-icon.heart { top: 16%; left: 10%; }
+.bg-icon.plus { top: 62%; left: 80%; animation-delay: 2s; }
+.bg-icon.shield { top: 72%; left: 18%; animation-delay: 1s; }
+.bg-icon.brain { top: 26%; left: 78%; animation-delay: 3s; }
+
+/* Tiny particles */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.particle.p1 {
+    width: 10px;
+    height: 10px;
+    top: 22%;
+    left: 22%;
+    background: rgba(14,165,164,0.45);
+    animation: particleFloat 8s ease-in-out infinite;
+}
+
+.particle.p2 {
+    width: 14px;
+    height: 14px;
+    top: 18%;
+    right: 24%;
+    background: rgba(37,99,235,0.42);
+    animation: particleFloat 9s ease-in-out infinite 1s;
+}
+
+.particle.p3 {
+    width: 18px;
+    height: 18px;
+    bottom: 20%;
+    right: 20%;
+    background: rgba(99,102,241,0.34);
+    animation: particleFloat 10s ease-in-out infinite 2s;
+}
 
 /* ===============================
    CARD
@@ -48,35 +134,69 @@
 
 .auth-card {
     width: 100%;
-    max-width: 460px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 55px;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.12);
-    backdrop-filter: blur(15px);
+    max-width: 470px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 26px;
+    padding: 38px 34px;
+    box-shadow: 0 35px 90px rgba(15,23,42,0.16);
     position: relative;
     z-index: 2;
     animation: fadeUp 0.8s ease forwards;
+    overflow: hidden;
+}
+
+html.dark .auth-card {
+    background: rgba(15,23,42,0.68);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.auth-card::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    top: -60px;
+    right: -60px;
+    background: radial-gradient(circle, rgba(37,99,235,0.22), transparent 70%);
+    pointer-events: none;
 }
 
 /* Header */
 
 .auth-header {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 26px;
+    position: relative;
+    z-index: 1;
 }
 
 .auth-icon {
-    font-size: 52px;
-    margin-bottom: 10px;
-    color: #0EA5A4;
-    animation: float 3s ease-in-out infinite;
+    width: 74px;
+    height: 74px;
+    margin: 0 auto 16px;
+    border-radius: 22px;
+    background: linear-gradient(135deg,#2563EB,#0EA5A4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 20px 50px rgba(37,99,235,0.34);
+    animation: float 4s ease-in-out infinite;
+}
+
+.auth-icon i {
+    width: 34px;
+    height: 34px;
 }
 
 .auth-header h2 {
     font-size: 30px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
 }
 
 .auth-sub {
@@ -84,38 +204,94 @@
     color: var(--text-light);
 }
 
+/* Tiny premium chips */
+.auth-chips {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-chip {
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.56);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+html.dark .auth-chip {
+    background: rgba(255,255,255,0.08);
+}
+
 /* ===============================
    INPUTS
 ================================ */
 
-.input-group {
+.auth-form {
     position: relative;
-    margin-bottom: 22px;
+    z-index: 1;
 }
 
-.input-group i {
+.input-group {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.input-group .left-icon {
     position: absolute;
     top: 50%;
-    left: 18px;
+    left: 16px;
     transform: translateY(-50%);
     color: var(--text-light);
+    z-index: 2;
+}
+
+.input-group .left-icon i,
+.toggle-password i {
+    width: 18px;
+    height: 18px;
 }
 
 .auth-input {
     width: 100%;
-    padding: 18px 18px 18px 52px;
-    border-radius: 14px;
+    padding: 17px 50px 17px 48px;
+    border-radius: 16px;
     border: 1px solid var(--border);
     font-size: 15px;
-    background: var(--bg);
+    background: rgba(255,255,255,0.62);
     color: var(--text);
-    transition: 0.3s ease;
+    transition: 0.28s ease;
+}
+
+html.dark .auth-input {
+    background: rgba(255,255,255,0.07);
 }
 
 .auth-input:focus {
     outline: none;
     border-color: #0EA5A4;
-    box-shadow: 0 0 0 4px rgba(14,165,164,0.15);
+    box-shadow: 0 0 0 4px rgba(14,165,164,0.18);
+    transform: translateY(-1px);
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===============================
@@ -124,36 +300,53 @@
 
 .auth-btn {
     width: 100%;
-    padding: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 16px;
+    padding: 18px;
+    font-size: 17px;
+    font-weight: 700;
+    border-radius: 18px;
     border: none;
     background: linear-gradient(135deg,#0EA5A4,#0F766E);
     color: white;
     cursor: pointer;
-    transition: 0.3s ease;
-    box-shadow: 0 20px 50px rgba(14,165,164,0.35);
+    transition: 0.28s ease;
+    box-shadow: 0 22px 52px rgba(14,165,164,0.38);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+    transition: 0.6s ease;
 }
 
 .auth-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 30px 70px rgba(14,165,164,0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 28px 60px rgba(14,165,164,0.48);
 }
 
-/* ===============================
-   FOOTER
-================================ */
+.auth-btn:hover::before {
+    left: 130%;
+}
+
+/* Footer */
 
 .auth-footer {
-    margin-top: 30px;
+    margin-top: 22px;
     text-align: center;
     font-size: 14px;
+    position: relative;
+    z-index: 1;
 }
 
 .auth-footer a {
     color: #0EA5A4;
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
 }
 
@@ -161,61 +354,139 @@
     text-decoration: underline;
 }
 
-/* ===============================
+/* ==================================
    ANIMATIONS
-================================ */
+================================== */
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(25px); }
+    from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes float {
     0% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
+    50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
 }
 
-@keyframes floatGlow {
+@keyframes floatGlowA {
     from { transform: translate(0,0); }
-    to { transform: translate(-40px,40px); }
+    to { transform: translate(34px,40px); }
 }
 
+@keyframes floatGlowB {
+    from { transform: translate(0,0); }
+    to { transform: translate(-30px,-38px); }
+}
+
+@keyframes particleFloat {
+    0% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-14px) translateX(6px); }
+    100% { transform: translateY(0px) translateX(0px); }
+}
+
+@keyframes ecgDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* ==================================
+   RESPONSIVE
+================================== */
+
+@media (max-width: 640px) {
+    .auth-section {
+        padding: 20px 12px;
+    }
+
+    .auth-card {
+        padding: 28px 20px;
+        border-radius: 22px;
+    }
+
+    .auth-header h2 {
+        font-size: 24px;
+    }
+}
 </style>
 
 <div class="auth-section">
 
-    <!-- Floating Medical Background Icons -->
-    <div class="bg-icon heart">❤️</div>
-    <div class="bg-icon plus">➕</div>
-    <div class="bg-icon shield">🛡️</div>
-    <div class="bg-icon brain">🧠</div>
+    <!-- motion layers -->
+    <div class="ecg-bg">
+        <svg viewBox="0 0 1600 500" preserveAspectRatio="none">
+            <path class="ecg-line"
+                d="M0 250
+                   L90 250
+                   L110 210
+                   L130 290
+                   L150 240
+                   L240 240
+                   L260 170
+                   L280 320
+                   L300 240
+                   L430 240
+                   L450 210
+                   L470 285
+                   L490 245
+                   L640 245
+                   L660 180
+                   L680 325
+                   L700 240
+                   L900 240
+                   L920 210
+                   L940 290
+                   L960 245
+                   L1160 245
+                   L1180 185
+                   L1200 320
+                   L1220 240
+                   L1600 240" />
+        </svg>
+    </div>
+
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+
+    <div class="bg-icon heart"><i data-lucide="heart-pulse"></i></div>
+    <div class="bg-icon plus"><i data-lucide="plus"></i></div>
+    <div class="bg-icon shield"><i data-lucide="shield-check"></i></div>
+    <div class="bg-icon brain"><i data-lucide="brain"></i></div>
 
     <div class="auth-card">
 
         <div class="auth-header">
             <div class="auth-icon">
-                <i data-lucide="heart-pulse"></i>
+                <i data-lucide="user-plus"></i>
             </div>
-            <h2>Create Your Health Account</h2>
-            <p class="auth-sub">Secure • Intelligent • AI Powered</p>
+            <h2>Create Account</h2>
+            <p class="auth-sub">AI Powered • Secure</p>
         </div>
 
-        <form method="POST">
+        <div class="auth-chips">
+            <span class="auth-chip">🔒 Secure</span>
+            <span class="auth-chip">🧠 Smart</span>
+            <span class="auth-chip">📩 OTP</span>
+        </div>
+
+        <form method="POST" class="auth-form">
 
             <div class="input-group">
-                <i data-lucide="user"></i>
+                <span class="left-icon"><i data-lucide="user"></i></span>
                 <input type="text" name="name" placeholder="Full Name" required class="auth-input">
             </div>
 
             <div class="input-group">
-                <i data-lucide="mail"></i>
+                <span class="left-icon"><i data-lucide="mail"></i></span>
                 <input type="email" name="email" placeholder="Email Address" required class="auth-input">
             </div>
 
             <div class="input-group">
-                <i data-lucide="lock"></i>
-                <input type="password" name="password" placeholder="Create Password" required class="auth-input">
+                <span class="left-icon"><i data-lucide="lock"></i></span>
+                <input type="password" id="passwordInput" name="password" placeholder="Create Password" required class="auth-input">
+                <button type="button" class="toggle-password" id="togglePassword">
+                    <i data-lucide="eye"></i>
+                </button>
             </div>
 
             <button type="submit" class="auth-btn">
@@ -234,6 +505,22 @@
 
 <script>
 lucide.createIcons();
+
+const togglePassword = document.getElementById("togglePassword");
+const passwordInput = document.getElementById("passwordInput");
+
+if (togglePassword && passwordInput) {
+    togglePassword.addEventListener("click", function () {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+
+        this.innerHTML = isPassword
+            ? '<i data-lucide="eye-off"></i>'
+            : '<i data-lucide="eye"></i>';
+
+        lucide.createIcons();
+    });
+}
 </script>
 
 {% endblock %}

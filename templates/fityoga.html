@@ -1,0 +1,3262 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    
+:root {
+  --blue: #2563EB;
+  --blue-light: #3B82F6;
+  --blue-soft: #EFF6FF;
+  --teal: #0EA5A4;
+  --teal-light: #14B8B7;
+  --teal-soft: #F0FDFD;
+  --navy: #0F172A;
+  --navy-mid: #1E293B;
+  --bg: #F8FAFC;
+  --white: #FFFFFF;
+  --green: #22C55E;
+  --green-soft: #F0FDF4;
+  --orange: #F59E0B;
+  --orange-soft: #FFFBEB;
+  --red: #EF4444;
+  --red-soft: #FFF5F5;
+  --text: #0F172A;
+  --text-mid: #475569;
+  --text-light: #94A3B8;
+  --border: #E2E8F0;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 24px rgba(15,23,42,0.08);
+  --shadow-lg: 0 12px 48px rgba(15,23,42,0.12);
+}
+html {
+  scroll-behavior: smooth;
+}
+/* Premium Yoga Modal */
+.pose-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.2rem;
+}
+
+.pose-modal.show {
+  display: flex;
+}
+
+.pose-modal-card {
+  width: min(980px, 100%);
+  background: linear-gradient(145deg, #ffffff, #f8fbff);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(15,23,42,.28);
+  border: 1px solid rgba(226,232,240,.9);
+  position: relative;
+  animation: modalUp .35s ease;
+}
+
+@keyframes modalUp {
+  from { transform: translateY(30px) scale(.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.pose-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563EB;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.pose-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 520px;
+}
+
+.pose-image-wrap {
+  background: linear-gradient(135deg, #dbeafe, #f0fdfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.pose-image {
+  width: 100%;
+  max-width: 380px;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow: 0 14px 36px rgba(15,23,42,.18);
+}
+
+.pose-content {
+  padding: 3rem 2.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pose-mini-label {
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: #2563EB;
+  font-weight: 700;
+  margin-bottom: .7rem;
+}
+
+.pose-title {
+  font-size: 2rem;
+  color: #0F172A;
+  margin-bottom: .5rem;
+  font-weight: 800;
+}
+
+.pose-benefit {
+  color: #475569;
+  font-size: .95rem;
+  margin-bottom: 1.4rem;
+}
+
+.step-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.2rem;
+  margin-bottom: 1.4rem;
+}
+
+.step-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .8rem;
+}
+
+.step-count {
+  background: #dbeafe;
+  color: #2563EB;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: .35rem .8rem;
+  border-radius: 999px;
+}
+
+.pose-step-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #0F172A;
+  font-weight: 600;
+}
+
+.pose-controls {
+  display: flex;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.premium-btn {
+  border: none;
+  border-radius: 999px;
+  padding: .9rem 1.2rem;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #2563EB, #0EA5A4);
+  color: white;
+}
+
+.secondary-btn {
+  background: #e2e8f0;
+  color: #0F172A;
+}
+
+.voice-btn {
+  background: #eff6ff;
+  color: #2563EB;
+}
+
+.premium-btn:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 800px) {
+  .pose-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pose-image {
+    max-width: 100%;
+    height: 280px;
+  }
+
+  .pose-content {
+    padding: 1.4rem;
+  }
+}
+/* local reset for this page */
+.fityoga-page, .fityoga-page * { box-sizing: border-box; }
+.fityoga-page {
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* sections */
+.fityoga-page section {
+  padding: 5rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.section-label {
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: .75rem;
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: .5rem;
+}
+.section-sub {
+  color: var(--text-mid);
+  font-size: .95rem;
+  margin-bottom: 2.5rem;
+}
+
+/* hero */
+#hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #0C2340 100%);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  max-width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.hero-blobs { position: absolute; inset: 0; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .3; animation: blobFloat 8s ease-in-out infinite; }
+.blob-1 { width: 500px; height: 500px; background: radial-gradient(circle, #2563EB, transparent); top: -100px; left: -100px; animation-delay: 0s; }
+.blob-2 { width: 400px; height: 400px; background: radial-gradient(circle, #0EA5A4, transparent); bottom: -80px; right: 10%; animation-delay: -3s; }
+.blob-3 { width: 300px; height: 300px; background: radial-gradient(circle, #22C55E, transparent); top: 40%; left: 40%; animation-delay: -5s; }
+
+@keyframes blobFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(20px,-20px) scale(1.05); }
+  66% { transform: translate(-15px,15px) scale(.95); }
+}
+
+.hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: rgba(37,99,235,.2);
+  border: 1px solid rgba(37,99,235,.4);
+  color: #93C5FD;
+  padding: .35rem .9rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+.hero-title {
+  font-size: clamp(3rem,7vw,5.5rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1.05;
+  margin-bottom: 1.2rem;
+}
+.hero-title span {
+  background: linear-gradient(90deg, #60A5FA, #34D8D8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  color: #94A3B8;
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  max-width: 420px;
+}
+.hero-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+  padding: .85rem 2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .95rem;
+  border: none;
+  cursor: pointer;
+  transition: all .3s;
+  box-shadow: 0 8px 24px rgba(37,99,235,.4);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(37,99,235,.5);
+}
+.btn-outline {
+  background: transparent;
+  color: white;
+  padding: .85rem 2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .95rem;
+  border: 1px solid rgba(255,255,255,.3);
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-outline:hover {
+  background: rgba(255,255,255,.1);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.hero-stat {
+  background: rgba(255,255,255,.07);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.4rem;
+}
+.hero-stat-val {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: white;
+}
+.hero-stat-label {
+  font-size: .75rem;
+  color: #64748B;
+  margin-top: .2rem;
+}
+
+.hero-viz {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 28px;
+  padding: 2rem;
+}
+.hero-viz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.hero-viz-title {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.pulse-badge {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(34,197,94,.2);
+  color: #4ADE80;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+}
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ADE80;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:.5; transform:scale(.8); }
+}
+
+.body-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.body-metric {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255,255,255,.05);
+  border-radius: var(--radius-sm);
+  padding: .9rem 1.1rem;
+}
+.body-metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bm-blue { background: rgba(37,99,235,.25); color: #60A5FA; }
+.bm-teal { background: rgba(14,165,164,.25); color: #2DD4BF; }
+.bm-green { background: rgba(34,197,94,.25); color: #4ADE80; }
+.body-metric-info { flex: 1; }
+.body-metric-label { font-size: .75rem; color: #64748B; }
+.body-metric-val { font-weight: 700; color: white; font-size: .95rem; }
+.body-metric-bar {
+  height: 4px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+  margin-top: .5rem;
+  overflow: hidden;
+}
+.body-metric-fill {
+  height: 100%;
+  border-radius: 2px;
+  animation: fillBar 2s ease forwards;
+}
+@keyframes fillBar {
+  from { width: 0; }
+}
+.pulse-line {
+  margin-top: 1.2rem;
+  padding: 1rem;
+  background: rgba(255,255,255,.04);
+  border-radius: var(--radius-sm);
+}
+.pulse-label {
+  font-size: .72rem;
+  color: #64748B;
+  margin-bottom: .5rem;
+}
+.pulse-svg {
+  width: 100%;
+  height: 48px;
+}
+
+/* profile */
+#profile-widget { padding-top: 6rem; }
+.profile-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.profile-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.profile-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  position: relative;
+}
+.profile-online {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: var(--green);
+  border-radius: 50%;
+  border: 3px solid white;
+}
+.profile-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.profile-role {
+  font-size: .8rem;
+  color: var(--text-light);
+  margin-top: .2rem;
+}
+.profile-badges {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: .5rem;
+}
+.pbadge {
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .25rem .7rem;
+  border-radius: 999px;
+}
+.pbadge.teal { background: var(--teal-soft); color: var(--teal); }
+.pbadge.green { background: var(--green-soft); color: var(--green); }
+
+.profile-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+.pstat-val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.pstat-label {
+  font-size: .72rem;
+  color: var(--text-light);
+}
+.profile-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1.5rem 0;
+}
+.profile-info-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.profile-info-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--blue-soft);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+.profile-info-label {
+  font-size: .72rem;
+  color: var(--text-light);
+}
+.profile-info-val {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.profile-streak {
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.streak-val {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--orange);
+}
+.streak-label {
+  font-size: .8rem;
+  color: #94A3B8;
+}
+.streak-fire {
+  font-size: 2.5rem;
+}
+
+.profile-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1rem;
+}
+.activity-mini {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 1.2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.activity-mini-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto .8rem;
+}
+.activity-mini-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.activity-mini-label {
+  font-size: .72rem;
+  color: var(--text-light);
+  margin-top: .2rem;
+}
+.weekly-chart {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.weekly-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: .5rem;
+  height: 80px;
+  margin-top: 1rem;
+}
+.weekly-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+}
+.weekly-bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  animation: barUp 1s ease forwards;
+}
+@keyframes barUp {
+  from { height: 0 !important; }
+}
+.weekly-day {
+  font-size: .7rem;
+  color: var(--text-light);
+}
+
+/* categories */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(6,1fr);
+  gap: 1rem;
+}
+.cat-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow);
+  transition: all .3s;
+}
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--blue);
+}
+.cat-card.active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+.cat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  transition: all .3s;
+}
+.cat-card:hover .cat-icon,
+.cat-card.active .cat-icon {
+  transform: scale(1.1);
+}
+.cat-title {
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--navy);
+  margin-bottom: .25rem;
+}
+.cat-label {
+  font-size: .72rem;
+  color: var(--text-light);
+}
+
+/* yoga */
+.yoga-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1.5rem;
+}
+.yoga-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.yoga-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+.yoga-card-top {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.pose-emoji {
+  font-size: 4rem;
+  z-index: 1;
+}
+.yoga-card-body {
+  padding: 1.4rem;
+}
+.yoga-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .75rem;
+}
+.yoga-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.diff-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  padding: .25rem .7rem;
+  border-radius: 999px;
+}
+.diff-beginner { background: var(--green-soft); color: var(--green); }
+.diff-intermediate { background: var(--orange-soft); color: var(--orange); }
+.diff-advanced { background: var(--red-soft); color: var(--red); }
+
+.yoga-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.yoga-meta-item {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .78rem;
+  color: var(--text-mid);
+}
+.yoga-benefit {
+  font-size: .8rem;
+  color: var(--text-mid);
+  margin-bottom: 1.2rem;
+}
+.btn-view {
+  width: 100%;
+  background: var(--blue-soft);
+  color: var(--blue);
+  border: none;
+  border-radius: 999px;
+  padding: .65rem;
+  font-weight: 600;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-view:hover {
+  background: var(--blue);
+  color: white;
+}
+
+/* video */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1.5rem;
+}
+.video-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .3s;
+}
+.video-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+.video-thumb {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.video-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.video-card:hover .video-thumb-overlay {
+  opacity: 1;
+}
+.play-btn {
+  width: 56px;
+  height: 56px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.play-btn svg {
+  color: var(--blue);
+  margin-left: 4px;
+}
+.video-duration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,.7);
+  color: white;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .25rem .6rem;
+  border-radius: 6px;
+}
+.video-level {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .25rem .7rem;
+  border-radius: 999px;
+}
+.video-body {
+  padding: 1.2rem;
+}
+.video-title {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .95rem;
+  margin-bottom: .4rem;
+}
+.video-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: .75rem;
+  color: var(--text-light);
+}
+.video-tags {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: .75rem;
+}
+.vtag {
+  background: var(--bg);
+  color: var(--text-mid);
+  font-size: .7rem;
+  font-weight: 500;
+  padding: .2rem .6rem;
+  border-radius: 6px;
+}
+
+/* exercise */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1.2rem;
+}
+.ex-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.ex-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--teal);
+}
+.ex-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.ex-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .95rem;
+  margin-bottom: .5rem;
+}
+.ex-badges {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-bottom: .8rem;
+}
+.ex-badge {
+  font-size: .68rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: 6px;
+}
+.ex-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: .78rem;
+  color: var(--text-mid);
+}
+
+/* wellness strip */
+.wellness-strip-wrap {
+  background: linear-gradient(135deg, var(--navy), #1E3A5F);
+  border-radius: 24px;
+  padding: 2.5rem;
+  overflow: hidden;
+  position: relative;
+}
+.wellness-strip-wrap::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(37,99,235,.3), transparent);
+  border-radius: 50%;
+}
+.wellness-strip-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+.wellness-pills {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.wellness-pill {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.15);
+  color: white;
+  padding: .7rem 1.3rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .3s;
+}
+.wellness-pill:hover {
+  background: rgba(255,255,255,.2);
+  transform: scale(1.04);
+}
+.wellness-pill-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+}
+
+/* planner */
+.planner-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1.5rem;
+}
+.planner-block {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.planner-time {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.planner-time-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.planner-time-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.planner-time-sub {
+  font-size: .75rem;
+  color: var(--text-light);
+}
+.planner-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: .75rem;
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.planner-item:hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+.planner-item-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.planner-item-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--navy);
+  flex: 1;
+}
+.planner-item-dur {
+  font-size: .75rem;
+  color: var(--text-light);
+}
+
+/* breathing */
+.breathing-grid {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 1.2rem;
+}
+.breath-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.breath-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+.breath-anim {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.breath-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid;
+  opacity: .3;
+  animation: breathRing 3s ease-in-out infinite;
+}
+@keyframes breathRing {
+  0%,100% { transform:scale(1); opacity:.3; }
+  50% { transform:scale(1.2); opacity:.6; }
+}
+.breath-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .9rem;
+  margin-bottom: .4rem;
+}
+.breath-dur {
+  font-size: .75rem;
+  color: var(--text-light);
+  margin-bottom: .6rem;
+}
+.breath-tag {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .2rem .65rem;
+  border-radius: 999px;
+}
+
+/* stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1.5rem;
+}
+.stat-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+.stat-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stat-trend {
+  font-size: .78rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+}
+.trend-up { background: var(--green-soft); color: var(--green); }
+.trend-down { background: var(--red-soft); color: var(--red); }
+.stat-val {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: .25rem;
+}
+.stat-label {
+  font-size: .82rem;
+  color: var(--text-mid);
+  margin-bottom: 1.2rem;
+}
+.stat-progress {
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.stat-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  animation: fillBar 2s ease forwards;
+}
+
+/* circular progress */
+.circ-progress {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+}
+.circ-svg { transform: rotate(-90deg); }
+.circ-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 6;
+}
+.circ-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: circFill 2s ease forwards;
+}
+@keyframes circFill {
+  to { stroke-dashoffset: var(--offset); }
+}
+.circ-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* BMI */
+.bmi-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.bmi-form, .bmi-result {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.bmi-form-title, .bmi-result-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 1.5rem;
+}
+.form-group { margin-bottom: 1.3rem; }
+.form-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: .5rem;
+  display: block;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.form-input {
+  width: 100%;
+  padding: .85rem 1.1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .95rem;
+  color: var(--navy);
+  outline: none;
+  transition: border .2s;
+  background: var(--bg);
+}
+.form-input:focus {
+  border-color: var(--blue);
+  background: white;
+}
+.gender-row {
+  display: flex;
+  gap: .75rem;
+}
+.gender-btn {
+  flex: 1;
+  padding: .85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-mid);
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+}
+.gender-btn.active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.form-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--blue) var(--val,50%), var(--border) var(--val,50%));
+  outline: none;
+  cursor: pointer;
+}
+.form-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 2px 8px rgba(37,99,235,.4);
+  cursor: pointer;
+}
+.slider-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 48px;
+  text-align: right;
+}
+.calc-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: .5rem;
+  transition: all .3s;
+}
+.calc-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,99,235,.4);
+}
+
+.bmi-gauge {
+  position: relative;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.bmi-number {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.bmi-category {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: .3rem;
+}
+.bmi-scale {
+  display: flex;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 10px;
+  margin: 1.5rem 0;
+}
+.bmi-scale-seg { flex: 1; }
+.bmi-pointer {
+  display: flex;
+  justify-content: space-between;
+  font-size: .7rem;
+  color: var(--text-light);
+  margin-top: .4rem;
+}
+.bmi-tips {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  margin-top: 1.5rem;
+}
+.bmi-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  padding: .9rem;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.bmi-tip-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bmi-tip-text {
+  font-size: .82rem;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+/* nutrition */
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+.nutrition-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+.nut-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.nut-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.nut-card-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.nut-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+.nut-card-title {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .95rem;
+}
+.nut-card-sub {
+  font-size: .75rem;
+  color: var(--text-light);
+}
+.nut-items {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.nut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .8rem;
+}
+.nut-item-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--text-mid);
+}
+.nut-item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.nut-item-val {
+  font-weight: 600;
+  color: var(--navy);
+}
+.nut-item-bar {
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  margin-top: .25rem;
+  overflow: hidden;
+}
+.nut-item-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.nut-hydration {
+  background: linear-gradient(135deg, #0EA5A4, #0369A1);
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  color: white;
+}
+.nut-hydration-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  opacity: .9;
+}
+.water-glass-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+.water-glass {
+  width: 60px;
+  height: 100px;
+  border: 3px solid rgba(255,255,255,.5);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  overflow: hidden;
+}
+.water-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,.5);
+  animation: waterRise 2s ease forwards;
+  border-radius: 0 0 7px 7px;
+}
+@keyframes waterRise {
+  from { height: 0; }
+}
+.water-cups {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.water-cup {
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.water-cup:hover {
+  transform: scale(1.3);
+}
+.water-intake {
+  text-align: center;
+  margin-top: .75rem;
+}
+.water-intake-val {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.water-intake-label {
+  font-size: .75rem;
+  opacity: .7;
+}
+.nut-tips-strip {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-top: 1.2rem;
+}
+.nut-tip-pill {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  background: rgba(255,255,255,.15);
+  border-radius: 10px;
+  padding: .6rem .9rem;
+  font-size: .78rem;
+  font-weight: 500;
+}
+
+/* goals */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(6,1fr);
+  gap: 1.2rem;
+}
+.goal-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+}
+.goal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.goal-icon {
+  font-size: 2rem;
+  margin-bottom: .75rem;
+}
+.goal-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .85rem;
+  margin-bottom: .75rem;
+}
+.goal-progress {
+  height: 5px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: .4rem;
+}
+.goal-fill {
+  height: 100%;
+  border-radius: 3px;
+  animation: fillBar 2s ease forwards;
+}
+.goal-pct {
+  font-size: .72rem;
+  color: var(--text-light);
+}
+
+/* programs */
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1.5rem;
+}
+.prog-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.prog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+.prog-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.prog-emoji {
+  font-size: 2.5rem;
+}
+.prog-badge {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+}
+.prog-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: .4rem;
+}
+.prog-sub {
+  font-size: .82rem;
+  color: var(--text-mid);
+  margin-bottom: 1.2rem;
+}
+.prog-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: .78rem;
+  color: var(--text-mid);
+  margin-bottom: 1.2rem;
+}
+.prog-meta-item {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.prog-enroll {
+  width: 100%;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: .75rem;
+  font-weight: 600;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+.prog-enroll:hover {
+  background: var(--blue);
+  transform: scale(1.02);
+}
+
+/* safety */
+.safety-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1.2rem;
+}
+.safety-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+}
+.safety-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.safety-title {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .9rem;
+  margin-bottom: .4rem;
+}
+.safety-text {
+  font-size: .8rem;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+/* footer */
+.footer-cta {
+  background: linear-gradient(135deg, var(--navy) 0%, #1E3A5F 50%, #0C3060 100%);
+  border-radius: 28px;
+  padding: 4rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.footer-cta::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(37,99,235,.4), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.footer-cta-title {
+  font-size: clamp(2rem,5vw,3.5rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.footer-cta-sub {
+  color: #94A3B8;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.footer-cta-btn {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all .3s;
+  box-shadow: 0 8px 32px rgba(37,99,235,.5);
+  position: relative;
+}
+.footer-cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(37,99,235,.6);
+}
+
+/* reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* ===== LIVE YOGA COACH ADD-ON ===== */
+.live-yoga-wrap {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1.5rem;
+}
+
+.live-camera-card,
+.live-guide-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.live-card-head {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.live-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.live-chip {
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+}
+
+.live-camera-stage {
+  position: relative;
+  aspect-ratio: 16/10;
+  background: #0F172A;
+  overflow: hidden;
+}
+
+#webcam {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scaleX(-1);
+}
+
+#poseCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.live-overlay-row {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  z-index: 5;
+}
+
+.live-overlay-pill {
+  background: rgba(15,23,42,.72);
+  color: white;
+  padding: .32rem .7rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.live-camera-actions {
+  padding: 1rem 1.2rem 1.2rem;
+  display: flex;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.live-btn {
+  border: none;
+  border-radius: 999px;
+  padding: .85rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.live-btn:hover {
+  transform: translateY(-2px);
+}
+
+.live-btn.primary {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+}
+
+.live-btn.secondary {
+  background: #E2E8F0;
+  color: var(--navy);
+}
+
+.live-btn.voice {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.live-guide-body {
+  padding: 1.2rem;
+}
+
+.target-pose-wrap {
+  height: 250px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #DBEAFE, #F0FDFA);
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+#targetPoseImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.live-status-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.live-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: .7rem;
+}
+
+.live-status-row:last-child {
+  margin-bottom: 0;
+}
+
+.live-status-label {
+  font-size: .72rem;
+  color: var(--text-light);
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.live-status-value {
+  font-size: .78rem;
+  font-weight: 700;
+  padding: .28rem .65rem;
+  border-radius: 999px;
+}
+
+.live-neutral {
+  background: #E2E8F0;
+  color: #334155;
+}
+
+.live-good {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.live-warn {
+  background: var(--orange-soft);
+  color: var(--orange);
+}
+
+.live-bad {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.live-feedback-box {
+  background: linear-gradient(135deg, #EFF6FF, #F0FDFA);
+  border: 1px solid #DBEAFE;
+  border-radius: 18px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.live-feedback-title {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: .45rem;
+}
+
+#poseFeedbackText {
+  font-size: .92rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+  min-height: 54px;
+}
+
+.live-tip-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.live-tip-item {
+  display: flex;
+  gap: .75rem;
+  padding: .85rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+}
+
+.live-tip-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: .3rem;
+  flex-shrink: 0;
+}
+
+.live-tip-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.live-tip-text {
+  font-size: .78rem;
+  color: var(--text-mid);
+}
+
+.yoga-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+}
+
+.btn-live {
+  width: 100%;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: .65rem;
+  font-weight: 600;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+
+.btn-live:hover {
+  background: var(--blue);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1100px) {
+  .live-yoga-wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .yoga-card-actions {
+    grid-template-columns: 1fr;
+  }
+}
+/* responsive */
+@media (max-width:1100px) {
+  .categories-grid { grid-template-columns: repeat(3,1fr); }
+  .yoga-grid, .programs-grid { grid-template-columns: repeat(2,1fr); }
+  .exercise-grid { grid-template-columns: repeat(2,1fr); }
+  .breathing-grid { grid-template-columns: repeat(3,1fr); }
+  .goals-grid { grid-template-columns: repeat(3,1fr); }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .profile-grid { grid-template-columns: 1fr; }
+  .profile-activity-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-viz { display: none; }
+  .bmi-wrap, .nutrition-grid { grid-template-columns: 1fr; }
+}
+@media (max-width:700px) {
+  .categories-grid { grid-template-columns: repeat(2,1fr); }
+  .yoga-grid, .exercise-grid, .programs-grid, .video-grid { grid-template-columns: 1fr; }
+  .breathing-grid, .safety-grid, .goals-grid { grid-template-columns: repeat(2,1fr); }
+  .planner-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .fityoga-page section { padding: 4rem 1rem; }
+}
+</style>
+
+<div class="fityoga-page">
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="hero-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <i data-lucide="zap" style="width:12px;height:12px"></i>
+          HealthTrackk · FitYoga
+        </div>
+        <h1 class="hero-title">Move.<br>Breathe.<br><span>Live Better.</span></h1>
+        <p class="hero-sub">Your complete yoga & wellness hub — personalized, beautiful, and powerful.</p>
+        <div class="hero-ctas">
+          <button class="btn-primary" onclick="document.getElementById('yoga-section').scrollIntoView({behavior:'smooth'})">
+            <i data-lucide="wind" style="width:16px;height:16px;margin-right:6px;vertical-align:middle"></i>Explore Yoga
+          </button>
+          <button class="btn-outline" onclick="document.getElementById('exercise-section').scrollIntoView({behavior:'smooth'})">
+            <i data-lucide="activity" style="width:16px;height:16px;margin-right:6px;vertical-align:middle"></i>Start Exercise
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-val">24<span style="font-size:1rem;color:#64748B"> min</span></div>
+            <div class="hero-stat-label">Daily Yoga</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">48<span style="font-size:1rem;color:#64748B"> min</span></div>
+            <div class="hero-stat-label">Active Minutes</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val" style="color:#4ADE80">87<span style="font-size:1rem"> %</span></div>
+            <div class="hero-stat-label">Energy Level</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-viz">
+        <div class="hero-viz-header">
+          <div class="hero-viz-title">Body Wellness</div>
+          <div class="pulse-badge"><div class="pulse-dot"></div> Live</div>
+        </div>
+        <div class="body-card">
+          <div class="body-metric">
+            <div class="body-metric-icon bm-blue"><i data-lucide="heart" style="width:20px;height:20px"></i></div>
+            <div class="body-metric-info">
+              <div class="body-metric-label">Heart Rate</div>
+              <div class="body-metric-val">72 bpm</div>
+              <div class="body-metric-bar"><div class="body-metric-fill" style="width:72%;background:var(--blue)"></div></div>
+            </div>
+          </div>
+          <div class="body-metric">
+            <div class="body-metric-icon bm-teal"><i data-lucide="wind" style="width:20px;height:20px"></i></div>
+            <div class="body-metric-info">
+              <div class="body-metric-label">Breathing</div>
+              <div class="body-metric-val">16 rpm · Calm</div>
+              <div class="body-metric-bar"><div class="body-metric-fill" style="width:85%;background:var(--teal)"></div></div>
+            </div>
+          </div>
+          <div class="body-metric">
+            <div class="body-metric-icon bm-green"><i data-lucide="zap" style="width:20px;height:20px"></i></div>
+            <div class="body-metric-info">
+              <div class="body-metric-label">Energy</div>
+              <div class="body-metric-val">High · 87%</div>
+              <div class="body-metric-bar"><div class="body-metric-fill" style="width:87%;background:var(--green)"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="pulse-line">
+          <div class="pulse-label">Activity Pulse</div>
+          <svg class="pulse-svg" viewBox="0 0 260 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="0,30 30,30 40,10 50,40 60,20 70,38 80,30 110,30 125,5 135,45 145,20 155,35 165,30 200,30 210,15 220,38 230,25 260,30" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <defs><linearGradient id="grad" x1="0" y1="0" x2="260" y2="0"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#0EA5A4"/></linearGradient></defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE WIDGET -->
+  <section id="profile-widget" class="reveal">
+    <div class="section-label">Your Space</div>
+    <h2 class="section-title">Dashboard Overview</h2>
+    <p class="section-sub">Your wellness journey at a glance</p>
+    <div class="profile-grid">
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">
+            {{ session["user_name"][0]|upper if session.get("user_name") else "U" }}
+            <div class="profile-online"></div>
+          </div>
+          <div>
+            <div class="profile-name">{{ session["user_name"] if session.get("user_name") else "User" }}</div>
+            <div class="profile-role">Wellness Member</div>
+          </div>
+          <div class="profile-badges">
+            <span class="pbadge">🧘 Yogi</span>
+            <span class="pbadge teal">💪 Active</span>
+            <span class="pbadge green">🔥 Streaker</span>
+          </div>
+        </div>
+
+        <div class="profile-stats-row">
+          <div><div class="pstat-val">142</div><div class="pstat-label">Sessions</div></div>
+          <div><div class="pstat-val">38</div><div class="pstat-label">Days Active</div></div>
+          <div><div class="pstat-val">4.8</div><div class="pstat-label">Avg Score</div></div>
+        </div>
+
+        <div class="profile-divider"></div>
+
+        <div class="profile-info-row">
+          <div class="profile-info-icon"><i data-lucide="user" style="width:16px;height:16px"></i></div>
+          <div><div class="profile-info-label">Age / Gender</div><div class="profile-info-val">27 yrs · Male</div></div>
+        </div>
+        <div class="profile-info-row">
+          <div class="profile-info-icon"><i data-lucide="ruler" style="width:16px;height:16px"></i></div>
+          <div><div class="profile-info-label">Height / Weight</div><div class="profile-info-val">175 cm · 70 kg</div></div>
+        </div>
+        <div class="profile-info-row">
+          <div class="profile-info-icon"><i data-lucide="target" style="width:16px;height:16px"></i></div>
+          <div><div class="profile-info-label">Primary Goal</div><div class="profile-info-val">Flexibility & Stress Relief</div></div>
+        </div>
+        <div class="profile-info-row">
+          <div class="profile-info-icon" style="background:var(--green-soft);color:var(--green)"><i data-lucide="calendar" style="width:16px;height:16px"></i></div>
+          <div><div class="profile-info-label">Member Since</div><div class="profile-info-val">January 2025</div></div>
+        </div>
+      </div>
+
+      <div class="profile-right">
+        <div class="profile-streak">
+          <div>
+            <div style="font-size:.8rem;color:#64748B;margin-bottom:.3rem">Current Streak</div>
+            <div class="streak-val">12 Days</div>
+            <div class="streak-label">Keep it up! Personal best: 18 days</div>
+          </div>
+          <div class="streak-fire">🔥</div>
+        </div>
+
+        <div class="profile-activity-grid">
+          <div class="activity-mini">
+            <div class="activity-mini-icon" style="background:var(--blue-soft);color:var(--blue)"><i data-lucide="activity" style="width:20px;height:20px"></i></div>
+            <div class="activity-mini-val">48</div>
+            <div class="activity-mini-label">Yoga Sessions</div>
+          </div>
+          <div class="activity-mini">
+            <div class="activity-mini-icon" style="background:var(--teal-soft);color:var(--teal)"><i data-lucide="zap" style="width:20px;height:20px"></i></div>
+            <div class="activity-mini-val">61</div>
+            <div class="activity-mini-label">Workouts</div>
+          </div>
+          <div class="activity-mini">
+            <div class="activity-mini-icon" style="background:var(--green-soft);color:var(--green)"><i data-lucide="wind" style="width:20px;height:20px"></i></div>
+            <div class="activity-mini-val">33</div>
+            <div class="activity-mini-label">Breathing</div>
+          </div>
+          <div class="activity-mini">
+            <div class="activity-mini-icon" style="background:var(--orange-soft);color:var(--orange)"><i data-lucide="star" style="width:20px;height:20px"></i></div>
+            <div class="activity-mini-val">4.8</div>
+            <div class="activity-mini-label">Avg Score</div>
+          </div>
+        </div>
+
+        <div class="weekly-chart">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700;color:var(--navy);font-size:.95rem">Weekly Activity</div>
+            <div style="font-size:.78rem;color:var(--text-light)">This Week</div>
+          </div>
+          <div class="weekly-bars" id="weeklyBars"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="reveal">
+    <div class="section-label">Explore</div>
+    <h2 class="section-title">Quick Categories</h2>
+    <p class="section-sub">Find what you need, fast</p>
+    <div class="categories-grid">
+      <div class="cat-card active" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="wind" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Yoga</div>
+        <div class="cat-label">48 poses</div>
+      </div>
+      <div class="cat-card" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="activity" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Exercise</div>
+        <div class="cat-label">32 workouts</div>
+      </div>
+      <div class="cat-card" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#FFFBEB;color:#F59E0B"><i data-lucide="move" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Stretching</div>
+        <div class="cat-label">20 routines</div>
+      </div>
+      <div class="cat-card" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#F0FDFD;color:#0EA5A4"><i data-lucide="moon" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Meditation</div>
+        <div class="cat-label">15 sessions</div>
+      </div>
+      <div class="cat-card" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#FFF5F5;color:#EF4444"><i data-lucide="heart" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Breathing</div>
+        <div class="cat-label">10 techniques</div>
+      </div>
+      <div class="cat-card" onclick="setCat(this)">
+        <div class="cat-icon" style="background:#F5F3FF;color:#7C3AED"><i data-lucide="refresh-cw" style="width:24px;height:24px"></i></div>
+        <div class="cat-title">Recovery</div>
+        <div class="cat-label">12 programs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- YOGA -->
+  <section id="yoga-section" class="reveal">
+    <div class="section-label">Featured Poses</div>
+    <h2 class="section-title">Yoga Library</h2>
+    <p class="section-sub">Ancient wisdom, modern practice</p>
+    <div class="yoga-grid">
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE)"><div class="pose-emoji">🧍</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Tadasana</div><span class="diff-badge diff-beginner">Beginner</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 5 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Posture</div></div>
+          <div class="yoga-benefit">Improves posture, strengthens thighs and ankles.</div>
+          <button class="btn-view" data-pose="Tadasana">View Details</button>
+        </div>
+      </div>
+
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7)"><div class="pose-emoji">🌳</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Vrikshasana</div><span class="diff-badge diff-intermediate">Intermediate</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 8 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Balance</div></div>
+          <div class="yoga-benefit">Enhances balance and focus, strengthens legs.</div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#FFF7ED,#FED7AA)"><div class="pose-emoji">🐍</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Bhujangasana</div><span class="diff-badge diff-intermediate">Intermediate</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 10 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Spine</div></div>
+          <div class="yoga-benefit">Opens chest and shoulders, strengthens spine.</div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#F0FDFD,#CCFBF1)"><div class="pose-emoji">💤</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Shavasana</div><span class="diff-badge diff-beginner">Beginner</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 15 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Relaxation</div></div>
+          <div class="yoga-benefit">Deep rest and rejuvenation for body and mind.</div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#FFF5F5,#FEE2E2)"><div class="pose-emoji">🌬️</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Anulom Vilom</div><span class="diff-badge diff-beginner">Beginner</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 10 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Breath</div></div>
+          <div class="yoga-benefit">Balances nervous system, calms the mind.</div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+
+      <div class="yoga-card">
+        <div class="yoga-card-top" style="background:linear-gradient(135deg,#FEFCE8,#FEF08A)"><div class="pose-emoji">☀️</div></div>
+        <div class="yoga-card-body">
+          <div class="yoga-card-header"><div class="yoga-name">Surya Namaskar</div><span class="diff-badge diff-advanced">Advanced</span></div>
+          <div class="yoga-meta"><div class="yoga-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 20 min</div><div class="yoga-meta-item"><i data-lucide="target" style="width:13px;height:13px"></i> Full Body</div></div>
+          <div class="yoga-benefit">Complete full-body flow energizing all systems.</div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Yoga Premium Modal -->
+<div id="poseModal" class="pose-modal">
+  <div class="pose-modal-card">
+    <button class="pose-close" id="closePoseModal">&times;</button>
+
+    <div class="pose-modal-grid">
+      <div class="pose-image-wrap">
+        <img id="poseImage" src="" alt="Yoga Pose" class="pose-image">
+      </div>
+
+      <div class="pose-content">
+        <div class="pose-mini-label">FitYoga Session</div>
+        <h2 id="poseTitle" class="pose-title">Pose Name</h2>
+        <p id="poseBenefit" class="pose-benefit">Benefit text here</p>
+
+        <div class="step-box">
+          <div class="step-top">
+            <span id="stepCount" class="step-count">Step 1 / 4</span>
+          </div>
+          <div id="poseStep" class="pose-step-text">Step text here</div>
+        </div>
+
+        <div class="pose-controls">
+          <button id="prevStepBtn" class="premium-btn secondary-btn">Previous</button>
+          <button id="speakStepBtn" class="premium-btn voice-btn">🔊 Voice</button>
+          <button id="nextStepBtn" class="premium-btn primary-btn">Next Step</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- VIDEO TUTORIALS -->
+  <section class="reveal">
+    <div class="section-label">Learn & Practice</div>
+    <h2 class="section-title">Video Tutorials</h2>
+    <p class="section-sub">Expert-guided sessions you can follow along</p>
+    <div class="video-grid">
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#1E3A5F,#2563EB)">
+          <span style="font-size:3rem">🧘‍♀️</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">24:15</div>
+          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Morning Yoga Flow</div>
+          <div class="video-meta"><span>By Priya Sharma</span><span>·</span><span>12.4K views</span></div>
+          <div class="video-tags"><span class="vtag">Flexibility</span><span class="vtag">Morning</span><span class="vtag">15 min</span></div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#0C4A3E,#0EA5A4)">
+          <span style="font-size:3rem">💪</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">18:42</div>
+          <div class="video-level diff-badge diff-intermediate" style="font-size:.7rem">Intermediate</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Full Body Stretch Routine</div>
+          <div class="video-meta"><span>By Rahul Verma</span><span>·</span><span>8.2K views</span></div>
+          <div class="video-tags"><span class="vtag">Recovery</span><span class="vtag">Evening</span><span class="vtag">20 min</span></div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#3B1F2B,#9333EA)">
+          <span style="font-size:3rem">🌙</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">12:00</div>
+          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Deep Sleep Meditation</div>
+          <div class="video-meta"><span>By Ananya Rao</span><span>·</span><span>21.7K views</span></div>
+          <div class="video-tags"><span class="vtag">Sleep</span><span class="vtag">Calm</span><span class="vtag">Night</span></div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#1A3020,#22C55E)">
+          <span style="font-size:3rem">🏃</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">30:10</div>
+          <div class="video-level diff-badge diff-intermediate" style="font-size:.7rem">Intermediate</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Beginner Cardio Blast</div>
+          <div class="video-meta"><span>By Dev Mehta</span><span>·</span><span>5.9K views</span></div>
+          <div class="video-tags"><span class="vtag">Cardio</span><span class="vtag">Energy</span><span class="vtag">30 min</span></div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#1C1A0F,#F59E0B)">
+          <span style="font-size:3rem">🌞</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">45:00</div>
+          <div class="video-level diff-badge diff-advanced" style="font-size:.7rem">Advanced</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Surya Namaskar Masterclass</div>
+          <div class="video-meta"><span>By Kavita Iyer</span><span>·</span><span>33.1K views</span></div>
+          <div class="video-tags"><span class="vtag">Full Body</span><span class="vtag">Strength</span><span class="vtag">Sun</span></div>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-thumb" style="background:linear-gradient(135deg,#0D1F3C,#3B82F6)">
+          <span style="font-size:3rem">🫁</span>
+          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
+          <div class="video-duration">10:30</div>
+          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
+        </div>
+        <div class="video-body">
+          <div class="video-title">Pranayama Breathing Guide</div>
+          <div class="video-meta"><span>By Meera Singh</span><span>·</span><span>17.5K views</span></div>
+          <div class="video-tags"><span class="vtag">Breathing</span><span class="vtag">Calm</span><span class="vtag">Focus</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXERCISE -->
+  <section id="exercise-section" class="reveal">
+    <div class="section-label">Get Moving</div>
+    <h2 class="section-title">Exercise Library</h2>
+    <p class="section-sub">Structured movement for every energy level</p>
+    <div class="exercise-grid">
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="footprints" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Walking</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#EFF6FF;color:#2563EB">Cardio</span><span class="ex-badge" style="background:#F0FDF4;color:#22C55E">Low</span></div>
+        <div class="ex-stats"><span>30 min</span><span>~120 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="trending-up" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Light Jogging</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#F0FDF4;color:#22C55E">Cardio</span><span class="ex-badge" style="background:#FFFBEB;color:#F59E0B">Moderate</span></div>
+        <div class="ex-stats"><span>20 min</span><span>~180 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#FFFBEB;color:#F59E0B"><i data-lucide="zap" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Jumping Jacks</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#FFFBEB;color:#F59E0B">Cardio</span><span class="ex-badge" style="background:#FFFBEB;color:#F59E0B">Moderate</span></div>
+        <div class="ex-stats"><span>10 min</span><span>~100 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#F5F3FF;color:#7C3AED"><i data-lucide="chevrons-down" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Squats</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#F5F3FF;color:#7C3AED">Strength</span><span class="ex-badge" style="background:#FFFBEB;color:#F59E0B">Moderate</span></div>
+        <div class="ex-stats"><span>15 min</span><span>~90 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#FFF5F5;color:#EF4444"><i data-lucide="rotate-cw" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Arm Circles</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#FFF5F5;color:#EF4444">Mobility</span><span class="ex-badge" style="background:#F0FDF4;color:#22C55E">Low</span></div>
+        <div class="ex-stats"><span>8 min</span><span>~40 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#F0FDFD;color:#0EA5A4"><i data-lucide="waves" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Mobility Flow</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#F0FDFD;color:#0EA5A4">Mobility</span><span class="ex-badge" style="background:#F0FDF4;color:#22C55E">Low</span></div>
+        <div class="ex-stats"><span>20 min</span><span>~70 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#FEFCE8;color:#CA8A04"><i data-lucide="flame" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Beginner Cardio</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#FEFCE8;color:#CA8A04">Cardio</span><span class="ex-badge" style="background:#FFFBEB;color:#F59E0B">Moderate</span></div>
+        <div class="ex-stats"><span>25 min</span><span>~200 kcal</span></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-icon" style="background:#F0FDF4;color:#16A34A"><i data-lucide="person-standing" style="width:22px;height:22px"></i></div>
+        <div class="ex-name">Full Body Stretch</div>
+        <div class="ex-badges"><span class="ex-badge" style="background:#F0FDF4;color:#16A34A">Flexibility</span><span class="ex-badge" style="background:#F0FDF4;color:#22C55E">Low</span></div>
+        <div class="ex-stats"><span>30 min</span><span>~80 kcal</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WELLNESS STRIP -->
+  <section class="reveal">
+    <div class="wellness-strip-wrap">
+      <div class="wellness-strip-title">🌿 Wellness Recommendations</div>
+      <div class="wellness-pills">
+        <div class="wellness-pill"><div class="wellness-pill-icon">❤️</div> Heart Support</div>
+        <div class="wellness-pill"><div class="wellness-pill-icon">🩺</div> Diabetes Friendly</div>
+        <div class="wellness-pill"><div class="wellness-pill-icon">😌</div> Stress Relief</div>
+        <div class="wellness-pill"><div class="wellness-pill-icon">🦴</div> Posture Care</div>
+        <div class="wellness-pill"><div class="wellness-pill-icon">⚡</div> Energy Boost</div>
+        <div class="wellness-pill"><div class="wellness-pill-icon">😴</div> Sleep Support</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANNER -->
+  <section class="reveal">
+    <div class="section-label">Schedule</div>
+    <h2 class="section-title">Daily Routine Planner</h2>
+    <p class="section-sub">Structure your day for maximum wellness</p>
+    <div class="planner-grid">
+      <div class="planner-block">
+        <div class="planner-time">
+          <div class="planner-time-icon" style="background:#FEFCE8;color:#CA8A04"><i data-lucide="sunrise" style="width:22px;height:22px"></i></div>
+          <div><div class="planner-time-label">Morning</div><div class="planner-time-sub">6:00 AM – 9:00 AM</div></div>
+        </div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#F59E0B"></div><div class="planner-item-name">Morning Breathing</div><div class="planner-item-dur">10 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#2563EB"></div><div class="planner-item-name">Surya Namaskar</div><div class="planner-item-dur">20 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#22C55E"></div><div class="planner-item-name">Light Walking</div><div class="planner-item-dur">30 min</div></div>
+      </div>
+
+      <div class="planner-block">
+        <div class="planner-time">
+          <div class="planner-time-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="sun" style="width:22px;height:22px"></i></div>
+          <div><div class="planner-time-label">Afternoon</div><div class="planner-time-sub">12:00 PM – 3:00 PM</div></div>
+        </div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#0EA5A4"></div><div class="planner-item-name">Stretch Session</div><div class="planner-item-dur">15 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#7C3AED"></div><div class="planner-item-name">Box Breathing</div><div class="planner-item-dur">8 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#F59E0B"></div><div class="planner-item-name">Desk Mobility</div><div class="planner-item-dur">10 min</div></div>
+      </div>
+
+      <div class="planner-block">
+        <div class="planner-time">
+          <div class="planner-time-icon" style="background:#F0FDFD;color:#0EA5A4"><i data-lucide="moon" style="width:22px;height:22px"></i></div>
+          <div><div class="planner-time-label">Evening</div><div class="planner-time-sub">7:00 PM – 9:00 PM</div></div>
+        </div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#2563EB"></div><div class="planner-item-name">Light Yoga</div><div class="planner-item-dur">20 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#22C55E"></div><div class="planner-item-name">Evening Relaxation</div><div class="planner-item-dur">15 min</div></div>
+        <div class="planner-item"><div class="planner-item-dot" style="background:#7C3AED"></div><div class="planner-item-name">Guided Meditation</div><div class="planner-item-dur">10 min</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BREATHING -->
+  <section class="reveal">
+    <div class="section-label">Mind & Breath</div>
+    <h2 class="section-title">Breathing & Meditation</h2>
+    <p class="section-sub">Calm your nervous system in minutes</p>
+    <div class="breathing-grid">
+      <div class="breath-card">
+        <div class="breath-anim" style="background:#EFF6FF"><i data-lucide="wind" style="width:24px;height:24px;color:#2563EB;position:relative;z-index:1"></i><div class="breath-ring" style="border-color:#2563EB"></div></div>
+        <div class="breath-name">Deep Breathing</div>
+        <div class="breath-dur">10 min</div>
+        <div class="breath-tag" style="background:#EFF6FF;color:#2563EB">Calm</div>
+      </div>
+      <div class="breath-card">
+        <div class="breath-anim" style="background:#F0FDF4"><i data-lucide="square" style="width:24px;height:24px;color:#22C55E;position:relative;z-index:1"></i><div class="breath-ring" style="border-color:#22C55E"></div></div>
+        <div class="breath-name">Box Breathing</div>
+        <div class="breath-dur">8 min</div>
+        <div class="breath-tag" style="background:#F0FDF4;color:#22C55E">Focus</div>
+      </div>
+      <div class="breath-card">
+        <div class="breath-anim" style="background:#FFF5F5"><i data-lucide="activity" style="width:24px;height:24px;color:#EF4444;position:relative;z-index:1"></i><div class="breath-ring" style="border-color:#EF4444"></div></div>
+        <div class="breath-name">Anulom Vilom</div>
+        <div class="breath-dur">12 min</div>
+        <div class="breath-tag" style="background:#FFF5F5;color:#EF4444">Balance</div>
+      </div>
+      <div class="breath-card">
+        <div class="breath-anim" style="background:#F0FDFD"><i data-lucide="moon" style="width:24px;height:24px;color:#0EA5A4;position:relative;z-index:1"></i><div class="breath-ring" style="border-color:#0EA5A4"></div></div>
+        <div class="breath-name">Guided Relaxation</div>
+        <div class="breath-dur">15 min</div>
+        <div class="breath-tag" style="background:#F0FDFD;color:#0EA5A4">Restore</div>
+      </div>
+      <div class="breath-card">
+        <div class="breath-anim" style="background:#F5F3FF"><i data-lucide="sparkles" style="width:24px;height:24px;color:#7C3AED;position:relative;z-index:1"></i><div class="breath-ring" style="border-color:#7C3AED"></div></div>
+        <div class="breath-name">5 Min Meditation</div>
+        <div class="breath-dur">5 min</div>
+        <div class="breath-tag" style="background:#F5F3FF;color:#7C3AED">Reset</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="reveal">
+    <div class="section-label">Progress</div>
+    <h2 class="section-title">Your Analytics</h2>
+    <p class="section-sub">Data-driven wellness insights</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="calendar-check" style="width:22px;height:22px"></i></div>
+          <span class="stat-trend trend-up">↑ 8%</span>
+        </div>
+        <div class="stat-val">38</div>
+        <div class="stat-label">Active Days This Month</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:76%;background:var(--blue)"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon" style="background:#F0FDFD;color:#0EA5A4"><i data-lucide="wind" style="width:22px;height:22px"></i></div>
+          <span class="stat-trend trend-up">↑ 12%</span>
+        </div>
+        <div class="stat-val">48</div>
+        <div class="stat-label">Yoga Sessions</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:80%;background:var(--teal)"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="activity" style="width:22px;height:22px"></i></div>
+          <span class="stat-trend trend-up">↑ 5%</span>
+        </div>
+        <div class="stat-val">61</div>
+        <div class="stat-label">Exercise Sessions</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:68%;background:var(--green)"></div></div>
+      </div>
+
+      <div class="stat-card" style="text-align:center">
+        <div class="circ-progress">
+          <svg class="circ-svg" viewBox="0 0 80 80" width="80" height="80">
+            <circle class="circ-bg" cx="40" cy="40" r="34"/>
+            <circle class="circ-fill" cx="40" cy="40" r="34" stroke="var(--orange)" style="--offset:44"/>
+          </svg>
+          <div class="circ-label">87</div>
+        </div>
+        <div class="stat-label" style="text-align:center">Recovery Score</div>
+        <span class="stat-trend trend-up" style="margin-top:.5rem;display:inline-block">Excellent</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BMI CALCULATOR -->
+  <section class="reveal">
+    <div class="section-label">Health Check</div>
+    <h2 class="section-title">BMI Calculator</h2>
+    <p class="section-sub">Know your numbers, own your wellness</p>
+    <div class="bmi-wrap">
+      <div class="bmi-form">
+        <div class="bmi-form-title">Enter Your Details</div>
+
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <div class="gender-row">
+            <button type="button" class="gender-btn active" id="btnMale" onclick="setGender('male')"><i data-lucide="user" style="width:16px;height:16px"></i> Male</button>
+            <button type="button" class="gender-btn" id="btnFemale" onclick="setGender('female')"><i data-lucide="user" style="width:16px;height:16px"></i> Female</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <div class="slider-wrap">
+            <input type="range" class="form-slider" id="ageSlider" min="10" max="90" value="27" oninput="updateSlider('ageSlider','ageVal','yrs')">
+            <div class="slider-val" id="ageVal">27 yrs</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Height (cm)</label>
+          <div class="slider-wrap">
+            <input type="range" class="form-slider" id="heightSlider" min="120" max="220" value="175" oninput="updateSlider('heightSlider','heightVal','cm')">
+            <div class="slider-val" id="heightVal">175 cm</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Weight (kg)</label>
+          <div class="slider-wrap">
+            <input type="range" class="form-slider" id="weightSlider" min="30" max="150" value="70" oninput="updateSlider('weightSlider','weightVal','kg')">
+            <div class="slider-val" id="weightVal">70 kg</div>
+          </div>
+        </div>
+
+        <button type="button" class="calc-btn" onclick="calcBMI()">Calculate BMI</button>
+      </div>
+
+      <div class="bmi-result">
+        <div class="bmi-result-title">Your BMI Result</div>
+        <div class="bmi-gauge">
+          <div class="bmi-number" id="bmiNumber" style="color:var(--green)">22.9</div>
+          <div class="bmi-category" id="bmiCategory" style="color:var(--green)">Normal Weight ✓</div>
+        </div>
+        <div class="bmi-scale">
+          <div class="bmi-scale-seg" style="background:#3B82F6"></div>
+          <div class="bmi-scale-seg" style="background:#22C55E"></div>
+          <div class="bmi-scale-seg" style="background:#F59E0B"></div>
+          <div class="bmi-scale-seg" style="background:#EF4444"></div>
+        </div>
+        <div class="bmi-pointer"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div>
+        <div class="bmi-tips" id="bmiTips">
+          <div class="bmi-tip">
+            <div class="bmi-tip-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="check-circle" style="width:14px;height:14px"></i></div>
+            <div class="bmi-tip-text">Great BMI! Maintain with regular yoga & balanced meals.</div>
+          </div>
+          <div class="bmi-tip">
+            <div class="bmi-tip-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="heart" style="width:14px;height:14px"></i></div>
+            <div class="bmi-tip-text">Recommended: 30 min yoga + 20 min cardio daily.</div>
+          </div>
+          <div class="bmi-tip">
+            <div class="bmi-tip-icon" style="background:#F0FDFD;color:#0EA5A4"><i data-lucide="droplets" style="width:14px;height:14px"></i></div>
+            <div class="bmi-tip-text">Stay hydrated — aim for 8 glasses of water per day.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUTRITION -->
+  <section class="reveal">
+    <div class="section-label">Fuel Your Practice</div>
+    <h2 class="section-title">Nutrition & Diet Tips</h2>
+    <p class="section-sub">Eat right to perform at your best</p>
+    <div class="nutrition-grid">
+      <div class="nutrition-cards">
+        <div class="nut-card">
+          <div class="nut-card-header">
+            <div class="nut-card-icon" style="background:#EFF6FF">🥗</div>
+            <div><div class="nut-card-title">Pre-Yoga Meals</div><div class="nut-card-sub">Light & energizing</div></div>
+          </div>
+          <div class="nut-items">
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#22C55E"></div>Banana + Nuts</div><div class="nut-item-val">~180 kcal</div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#F59E0B"></div>Oat Smoothie</div><div class="nut-item-val">~220 kcal</div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#2563EB"></div>Greek Yogurt</div><div class="nut-item-val">~120 kcal</div></div>
+          </div>
+        </div>
+
+        <div class="nut-card">
+          <div class="nut-card-header">
+            <div class="nut-card-icon" style="background:#F0FDF4">🍱</div>
+            <div><div class="nut-card-title">Post-Workout</div><div class="nut-card-sub">Recovery boost</div></div>
+          </div>
+          <div class="nut-items">
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#0EA5A4"></div>Dal + Brown Rice</div><div class="nut-item-val">~350 kcal</div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#7C3AED"></div>Paneer Salad</div><div class="nut-item-val">~280 kcal</div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#EF4444"></div>Egg White Bowl</div><div class="nut-item-val">~200 kcal</div></div>
+          </div>
+        </div>
+
+        <div class="nut-card">
+          <div class="nut-card-header">
+            <div class="nut-card-icon" style="background:#FFFBEB">🌾</div>
+            <div><div class="nut-card-title">Macros Today</div><div class="nut-card-sub">Daily targets</div></div>
+          </div>
+          <div class="nut-items">
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#2563EB"></div>Protein</div><div class="nut-item-val">68 / 80g</div></div>
+            <div class="nut-item-bar"><div class="nut-item-fill" style="width:85%;background:#2563EB;height:4px;border-radius:2px;animation:fillBar 2s ease forwards"></div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#F59E0B"></div>Carbs</div><div class="nut-item-val">180 / 220g</div></div>
+            <div class="nut-item-bar"><div class="nut-item-fill" style="width:82%;background:#F59E0B;height:4px;border-radius:2px;animation:fillBar 2s ease forwards"></div></div>
+            <div class="nut-item"><div class="nut-item-label"><div class="nut-item-dot" style="background:#22C55E"></div>Healthy Fats</div><div class="nut-item-val">42 / 55g</div></div>
+            <div class="nut-item-bar"><div class="nut-item-fill" style="width:76%;background:#22C55E;height:4px;border-radius:2px;animation:fillBar 2s ease forwards"></div></div>
+          </div>
+        </div>
+
+        <div class="nut-card">
+          <div class="nut-card-header">
+            <div class="nut-card-icon" style="background:#FFF5F5">🌿</div>
+            <div><div class="nut-card-title">Ayurvedic Tips</div><div class="nut-card-sub">Ancient wisdom</div></div>
+          </div>
+          <div class="nut-items">
+            <div class="nut-item" style="flex-direction:column;align-items:flex-start;gap:.3rem"><div class="nut-item-label" style="color:var(--navy);font-weight:600">🌙 Turmeric milk at night</div></div>
+            <div class="nut-item" style="flex-direction:column;align-items:flex-start;gap:.3rem"><div class="nut-item-label" style="color:var(--navy);font-weight:600">☀️ Warm water in morning</div></div>
+            <div class="nut-item" style="flex-direction:column;align-items:flex-start;gap:.3rem"><div class="nut-item-label" style="color:var(--navy);font-weight:600">🍵 Herbal teas daily</div></div>
+            <div class="nut-item" style="flex-direction:column;align-items:flex-start;gap:.3rem"><div class="nut-item-label" style="color:var(--navy);font-weight:600">🥄 Ghee in moderation</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nut-hydration">
+        <div class="nut-hydration-title">💧 Daily Hydration</div>
+        <div class="water-glass-wrap">
+          <div class="water-glass"><div class="water-fill" id="waterFill" style="height:60%"></div></div>
+        </div>
+        <div class="water-intake">
+          <div class="water-intake-val" id="waterVal">1.5L</div>
+          <div class="water-intake-label">of 2.5L daily goal</div>
+        </div>
+        <div class="water-cups" id="waterCups"></div>
+        <div class="nut-tips-strip">
+          <div class="nut-tip-pill">💡 Drink water 30 min before yoga</div>
+          <div class="nut-tip-pill">🍋 Add lemon for immunity boost</div>
+          <div class="nut-tip-pill">🌿 Coconut water post-workout</div>
+          <div class="nut-tip-pill">❄️ Avoid cold water during practice</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOALS -->
+  <section class="reveal">
+    <div class="section-label">Your Goals</div>
+    <h2 class="section-title">Goal Tracking</h2>
+    <p class="section-sub">Every step counts toward your transformation</p>
+    <div class="goals-grid">
+      <div class="goal-card"><div class="goal-icon">⚖️</div><div class="goal-name">Weight Management</div><div class="goal-progress"><div class="goal-fill" style="width:65%;background:var(--blue)"></div></div><div class="goal-pct">65%</div></div>
+      <div class="goal-card"><div class="goal-icon">🤸</div><div class="goal-name">Flexibility</div><div class="goal-progress"><div class="goal-fill" style="width:80%;background:var(--teal)"></div></div><div class="goal-pct">80%</div></div>
+      <div class="goal-card"><div class="goal-icon">❤️</div><div class="goal-name">Heart Health</div><div class="goal-progress"><div class="goal-fill" style="width:72%;background:var(--red)"></div></div><div class="goal-pct">72%</div></div>
+      <div class="goal-card"><div class="goal-icon">😌</div><div class="goal-name">Stress Reduction</div><div class="goal-progress"><div class="goal-fill" style="width:88%;background:var(--green)"></div></div><div class="goal-pct">88%</div></div>
+      <div class="goal-card"><div class="goal-icon">😴</div><div class="goal-name">Better Sleep</div><div class="goal-progress"><div class="goal-fill" style="width:55%;background:var(--orange)"></div></div><div class="goal-pct">55%</div></div>
+      <div class="goal-card"><div class="goal-icon">⚡</div><div class="goal-name">Daily Energy</div><div class="goal-progress"><div class="goal-fill" style="width:90%;background:#7C3AED"></div></div><div class="goal-pct">90%</div></div>
+    </div>
+  </section>
+
+  <!-- PROGRAMS -->
+  <section class="reveal">
+    <div class="section-label">Curated Programs</div>
+    <h2 class="section-title">Featured Programs</h2>
+    <p class="section-sub">Structured journeys designed for results</p>
+    <div class="programs-grid">
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2563EB,#0EA5A4)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">🧘</div><span class="prog-badge" style="background:#EFF6FF;color:#2563EB">7 Days</span></div>
+        <div class="prog-name">7-Day Beginner Yoga</div>
+        <div class="prog-sub">Start your yoga journey with gentle, guided daily sessions.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 20 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#0EA5A4,#22C55E)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">🤸</div><span class="prog-badge" style="background:#F0FDFD;color:#0EA5A4">14 Days</span></div>
+        <div class="prog-name">14-Day Flexibility Reset</div>
+        <div class="prog-sub">Deep stretch and mobility training to unlock your body.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 30 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Intermediate</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#EF4444,#F59E0B)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">❤️</div><span class="prog-badge" style="background:#FFF5F5;color:#EF4444">30 Days</span></div>
+        <div class="prog-name">Heart Wellness Routine</div>
+        <div class="prog-sub">Cardio-friendly yoga to support heart health daily.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 25 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> All levels</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7C3AED,#0EA5A4)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">😌</div><span class="prog-badge" style="background:#F5F3FF;color:#7C3AED">10 Days</span></div>
+        <div class="prog-name">Stress Relief Flow</div>
+        <div class="prog-sub">Breathwork + restorative yoga for deep mental relief.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 15 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#F59E0B,#22C55E)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">💼</div><span class="prog-badge" style="background:#FFFBEB;color:#F59E0B">21 Days</span></div>
+        <div class="prog-name">Desk Worker Stretch Plan</div>
+        <div class="prog-sub">Targeted routines for office professionals and remote workers.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 10 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+
+      <div class="prog-card">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#22C55E,#2563EB)"></div>
+        <div class="prog-card-header"><div class="prog-emoji">🌙</div><span class="prog-badge" style="background:#F0FDF4;color:#22C55E">7 Days</span></div>
+        <div class="prog-name">Deep Sleep Program</div>
+        <div class="prog-sub">Evening routines and meditations for restful, deep sleep.</div>
+        <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 20 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> All levels</div></div>
+        <button class="prog-enroll">Enroll Now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="reveal">
+    <div class="section-label">Your Safety</div>
+    <h2 class="section-title">Safety & Care</h2>
+    <p class="section-sub">Listen to your body, always</p>
+    <div class="safety-grid">
+      <div class="safety-card" style="border-color:#EF4444">
+        <div class="safety-icon" style="background:#FFF5F5;color:#EF4444"><i data-lucide="alert-triangle" style="width:20px;height:20px"></i></div>
+        <div class="safety-title">Stop if Dizzy</div>
+        <div class="safety-text">Immediately stop any activity if you feel dizzy, lightheaded, or disoriented.</div>
+      </div>
+      <div class="safety-card" style="border-color:#F59E0B">
+        <div class="safety-icon" style="background:#FFFBEB;color:#F59E0B"><i data-lucide="shield-alert" style="width:20px;height:20px"></i></div>
+        <div class="safety-title">Avoid Strain During Pain</div>
+        <div class="safety-text">Never push through sharp or acute pain. Rest and allow recovery time.</div>
+      </div>
+      <div class="safety-card" style="border-color:#2563EB">
+        <div class="safety-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="stethoscope" style="width:20px;height:20px"></i></div>
+        <div class="safety-title">Consult Your Doctor</div>
+        <div class="safety-text">For chronic conditions or severe symptoms, always consult a healthcare professional first.</div>
+      </div>
+      <div class="safety-card" style="border-color:#22C55E">
+        <div class="safety-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="sprout" style="width:20px;height:20px"></i></div>
+        <div class="safety-title">Start Gently</div>
+        <div class="safety-text">Begin at a comfortable pace. Progress gradually and celebrate small wins daily.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER CTA -->
+  <section class="reveal" style="padding-bottom:4rem">
+    <div class="footer-cta">
+      <h2 class="footer-cta-title">Move Better.<br>Feel Better.</h2>
+      <p class="footer-cta-sub">Your wellness journey starts with one breath. Begin today.</p>
+      <button class="footer-cta-btn">Start Your Journey →</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+lucide.createIcons();
+
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(r => observer.observe(r));
+
+function setCat(el) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+let gender = 'male';
+function setGender(g) {
+  gender = g;
+  document.getElementById('btnMale').classList.toggle('active', g === 'male');
+  document.getElementById('btnFemale').classList.toggle('active', g === 'female');
+}
+
+function updateSlider(sliderId, valId, unit) {
+  const sl = document.getElementById(sliderId);
+  const pct = ((sl.value - sl.min) / (sl.max - sl.min)) * 100;
+  sl.style.setProperty('--val', pct + '%');
+  document.getElementById(valId).textContent = sl.value + ' ' + unit;
+}
+
+function calcBMI() {
+  const h = parseInt(document.getElementById('heightSlider').value) / 100;
+  const w = parseInt(document.getElementById('weightSlider').value);
+  const bmi = (w / (h * h)).toFixed(1);
+  const el = document.getElementById('bmiNumber');
+  const cat = document.getElementById('bmiCategory');
+  el.textContent = bmi;
+  const tips = document.getElementById('bmiTips');
+
+  if (bmi < 18.5) {
+    el.style.color = '#3B82F6';
+    cat.style.color = '#3B82F6';
+    cat.textContent = 'Underweight ↑';
+    tips.innerHTML = `<div class="bmi-tip"><div class="bmi-tip-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="trending-up" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Focus on nutrient-dense foods and strength building yoga.</div></div><div class="bmi-tip"><div class="bmi-tip-icon" style="background:#FFFBEB;color:#F59E0B"><i data-lucide="apple" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Increase caloric intake with healthy proteins and fats.</div></div>`;
+  } else if (bmi < 25) {
+    el.style.color = '#22C55E';
+    cat.style.color = '#22C55E';
+    cat.textContent = 'Normal Weight ✓';
+    tips.innerHTML = `<div class="bmi-tip"><div class="bmi-tip-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="check-circle" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Excellent! Maintain with regular yoga & balanced meals.</div></div><div class="bmi-tip"><div class="bmi-tip-icon" style="background:#EFF6FF;color:#2563EB"><i data-lucide="heart" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">30 min yoga + 20 min cardio daily recommended.</div></div>`;
+  } else if (bmi < 30) {
+    el.style.color = '#F59E0B';
+    cat.style.color = '#F59E0B';
+    cat.textContent = 'Overweight →';
+    tips.innerHTML = `<div class="bmi-tip"><div class="bmi-tip-icon" style="background:#FFFBEB;color:#F59E0B"><i data-lucide="alert-circle" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Try 45 min daily walks + Surya Namaskar mornings.</div></div><div class="bmi-tip"><div class="bmi-tip-icon" style="background:#FFF5F5;color:#EF4444"><i data-lucide="flame" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Reduce processed sugars and increase fiber intake.</div></div>`;
+  } else {
+    el.style.color = '#EF4444';
+    cat.style.color = '#EF4444';
+    cat.textContent = 'Obese — Action Needed';
+    tips.innerHTML = `<div class="bmi-tip"><div class="bmi-tip-icon" style="background:#FFF5F5;color:#EF4444"><i data-lucide="alert-triangle" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Please consult a healthcare professional for a plan.</div></div><div class="bmi-tip"><div class="bmi-tip-icon" style="background:#F0FDF4;color:#22C55E"><i data-lucide="footprints" style="width:14px;height:14px"></i></div><div class="bmi-tip-text">Start with gentle walks and light yoga daily.</div></div>`;
+  }
+  lucide.createIcons();
+}
+
+const cups = 10;
+let filledCups = 6;
+const waterCupsEl = document.getElementById('waterCups');
+
+function renderCups() {
+  waterCupsEl.innerHTML = '';
+  for (let i = 0; i < cups; i++) {
+    const c = document.createElement('div');
+    c.className = 'water-cup';
+    c.textContent = i < filledCups ? '🥤' : '⬜';
+    c.onclick = () => { filledCups = i + 1; renderCups(); updateWater(); };
+    waterCupsEl.appendChild(c);
+  }
+}
+
+function updateWater() {
+  const pct = Math.round(filledCups / cups * 100);
+  document.getElementById('waterFill').style.height = pct + '%';
+  document.getElementById('waterVal').textContent = (filledCups * 0.25).toFixed(2).replace(/\.?0+$/,'') + 'L';
+}
+
+renderCups();
+
+const days = ['M','T','W','T','F','S','S'];
+const vals = [70,45,90,60,80,100,55];
+const colors = ['#2563EB','#0EA5A4','#22C55E','#2563EB','#0EA5A4','#F59E0B','#2563EB'];
+const barsEl = document.getElementById('weeklyBars');
+
+days.forEach((d, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'weekly-bar-wrap';
+  const bar = document.createElement('div');
+  bar.className = 'weekly-bar';
+  bar.style.cssText = `height:${vals[i] * 0.8}px;background:${colors[i]};opacity:${i === 5 ? '1' : '.75'}`;
+  const day = document.createElement('div');
+  day.className = 'weekly-day';
+  day.textContent = d;
+  wrap.appendChild(bar);
+  wrap.appendChild(day);
+  barsEl.appendChild(wrap);
+});
+
+['ageSlider','heightSlider','weightSlider'].forEach(id => {
+  const sl = document.getElementById(id);
+  if (sl) {
+    const pct = ((sl.value - sl.min) / (sl.max - sl.min)) * 100;
+    sl.style.setProperty('--val', pct + '%');
+  }
+});
+</script>
+<script>
+const yogaData = {
+  Tadasana: {
+    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80",
+    benefit: "Improves posture, body alignment, balance, and focus.",
+    steps: [
+      "Stand straight with your feet together and arms resting beside your body.",
+      "Distribute your body weight equally on both feet.",
+      "Slowly raise your arms overhead and stretch upward.",
+      "Lift your heels slightly if comfortable and hold the pose while breathing normally."
+    ]
+  },
+  Bhujangasana: {
+    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80",
+    benefit: "Strengthens the spine, opens the chest, and reduces stress.",
+    steps: [
+      "Lie flat on your stomach with legs extended and forehead on the mat.",
+      "Place your palms beside your chest and keep elbows close to the body.",
+      "Inhale and gently lift your chest using back strength first, then light hand support.",
+      "Keep shoulders relaxed, look slightly upward, and hold for a few breaths."
+    ]
+  },
+  Vrikshasana: {
+    image: "https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=900&q=80",
+    benefit: "Builds balance, stability, concentration, and leg strength.",
+    steps: [
+      "Stand tall and shift your weight onto one leg.",
+      "Place the sole of the other foot on your inner calf or thigh, not on the knee.",
+      "Bring your palms together in front of your chest or raise them overhead.",
+      "Fix your gaze on one point and hold the pose while breathing steadily."
+    ]
+  }
+};
+
+let currentPose = null;
+let currentStepIndex = 0;
+let currentUtterance = null;
+
+const poseModal = document.getElementById("poseModal");
+const poseTitle = document.getElementById("poseTitle");
+const poseBenefit = document.getElementById("poseBenefit");
+const poseImage = document.getElementById("poseImage");
+const poseStep = document.getElementById("poseStep");
+const stepCount = document.getElementById("stepCount");
+
+const prevStepBtn = document.getElementById("prevStepBtn");
+const nextStepBtn = document.getElementById("nextStepBtn");
+const speakStepBtn = document.getElementById("speakStepBtn");
+const closePoseModal = document.getElementById("closePoseModal");
+
+function updateStepUI() {
+  const pose = yogaData[currentPose];
+  poseTitle.textContent = currentPose;
+  poseBenefit.textContent = pose.benefit;
+  poseImage.src = pose.image;
+  poseStep.textContent = pose.steps[currentStepIndex];
+  stepCount.textContent = `Step ${currentStepIndex + 1} / ${pose.steps.length}`;
+
+  prevStepBtn.disabled = currentStepIndex === 0;
+  nextStepBtn.textContent =
+    currentStepIndex === pose.steps.length - 1 ? "Finish" : "Next Step";
+
+  prevStepBtn.style.opacity = currentStepIndex === 0 ? "0.5" : "1";
+}
+
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.rate = 0.95;
+  currentUtterance.pitch = 1;
+  currentUtterance.lang = "en-US";
+  window.speechSynthesis.speak(currentUtterance);
+}
+
+function openPoseModal(poseName) {
+  currentPose = poseName;
+  currentStepIndex = 0;
+  updateStepUI();
+  poseModal.classList.add("show");
+  speakText(yogaData[currentPose].steps[currentStepIndex]);
+}
+
+function closeModal() {
+  poseModal.classList.remove("show");
+  window.speechSynthesis.cancel();
+}
+
+document.querySelectorAll(".btn-view").forEach(btn => {
+  btn.addEventListener("click", function() {
+    const pose = this.getAttribute("data-pose");
+    openPoseModal(pose);
+  });
+});
+
+nextStepBtn.addEventListener("click", function() {
+  const total = yogaData[currentPose].steps.length;
+
+  if (currentStepIndex < total - 1) {
+    currentStepIndex++;
+    updateStepUI();
+    speakText(yogaData[currentPose].steps[currentStepIndex]);
+  } else {
+    speakText("Session completed. Great job.");
+  }
+});
+
+prevStepBtn.addEventListener("click", function() {
+  if (currentStepIndex > 0) {
+    currentStepIndex--;
+    updateStepUI();
+    speakText(yogaData[currentPose].steps[currentStepIndex]);
+  }
+});
+
+speakStepBtn.addEventListener("click", function() {
+  speakText(yogaData[currentPose].steps[currentStepIndex]);
+});
+
+closePoseModal.addEventListener("click", closeModal);
+
+poseModal.addEventListener("click", function(e) {
+  if (e.target === poseModal) closeModal();
+});
+</script>
+
+{% endblock %}

@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <title>HealthTrackk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1E3A8A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='healthtrackk-logo.png') }}">
 
-    <!-- Prevent dark mode flicker before page loads -->
     <script>
         if (localStorage.getItem("theme") === "dark") {
             document.documentElement.classList.add("dark");
         }
     </script>
 
-    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         :root {
             --primary: #1E3A8A;
+            --primary-strong: #2563EB;
+            --primary-glow: #38BDF8;
             --accent: #0EA5A4;
             --bg: #F8FAFC;
             --card: #FFFFFF;
@@ -35,6 +37,9 @@
             --text: #F1F5F9;
             --text-light: #94A3B8;
             --border: rgba(255,255,255,0.08);
+            --primary: #60A5FA;
+            --primary-strong: #7DD3FC;
+            --primary-glow: #67E8F9;
         }
 
         * {
@@ -48,6 +53,7 @@
         body {
             background: var(--bg);
             color: var(--text);
+            min-height: 100vh;
         }
 
         .container {
@@ -65,17 +71,8 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-.lang-btn {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    font-weight: 600;
-}
-
-.lang-btn:hover {
-    background: var(--border);
-}
 
         .nav-inner {
             display: flex;
@@ -84,9 +81,30 @@
         }
 
         .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
             font-size: 22px;
             font-weight: 700;
-            color: var(--primary);
+            letter-spacing: -0.3px;
+        }
+
+        .logo img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+        }
+
+        .logo span {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-strong), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 24px rgba(56, 189, 248, 0.10);
         }
 
         .nav-links {
@@ -103,10 +121,28 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            position: relative;
         }
 
         .nav-links a:hover {
-            color: var(--primary);
+            color: var(--primary-strong);
+        }
+
+        .nav-links a.active {
+            color: var(--primary-strong);
+            font-weight: 600;
+            position: relative;
+        }
+
+        .nav-links a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-strong), var(--accent));
+            border-radius: 2px;
         }
 
         /* LANGUAGE DROPDOWN */
@@ -116,19 +152,22 @@
         }
 
         .lang-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
             background: none;
-            border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-light);
         }
 
         .lang-btn:hover {
             color: var(--primary);
+            background: var(--border);
         }
 
         .lang-menu {
@@ -172,6 +211,23 @@
             align-items: center;
         }
 
+        /* TRUST STRIP */
+
+        .trust-strip {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0;
+        }
+
+        .trust-inner {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            font-size: 13px;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+
         /* FOOTER */
 
         footer {
@@ -180,53 +236,255 @@
             font-size: 14px;
             color: var(--text-light);
         }
-/* NAV AUTH BUTTON COLORS */
 
-.nav-links a[href="/login"],
-.nav-links a[href="/register"] {
-    padding: 8px 16px;
-    border-radius: 8px;
-}
+        .global-flashes {
+            width: 92%;
+            max-width: 1200px;
+            margin: 16px auto 0;
+            display: grid;
+            gap: 10px;
+        }
 
-/* Login button */
-.nav-links a[href="/login"] {
-    border: 1px solid var(--primary);
-    color: var(--primary);
-}
+        .global-flash {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
 
-.nav-links a[href="/login"]:hover {
-    background: var(--primary);
-    color: white;
-}
+        .global-flash.success {
+            background: rgba(34,197,94,0.10);
+            border-color: rgba(34,197,94,0.18);
+            color: #166534;
+        }
 
-/* Register button */
-.nav-links a[href="/register"] {
-    background: var(--primary);
-    color: white;
-}
+        .global-flash.error {
+            background: rgba(239,68,68,0.10);
+            border-color: rgba(239,68,68,0.18);
+            color: #991B1B;
+        }
 
-.nav-links a[href="/register"]:hover {
-    opacity: 0.9;
-}
+        /* NAV AUTH BUTTONS */
 
-/* Start Free Assessment button fix */
-.btn-primary {
-    background: var(--primary);
-    color: white !important;
-}
+        .nav-links a[href="/login"],
+        .nav-links a[href="/register"] {
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
 
-.btn-primary:hover {
-    opacity: 0.9;
-}
+        .nav-links a[href="/login"] {
+            border: 1px solid var(--primary-strong);
+            color: var(--primary-strong);
+        }
+
+        .nav-links a[href="/login"]:hover {
+            background: var(--primary-strong);
+            color: white;
+        }
+
+        .nav-links a[href="/register"] {
+            background: linear-gradient(135deg, var(--primary-strong), var(--accent));
+            color: white;
+        }
+
+        .nav-links a[href="/register"]:hover {
+            opacity: 0.9;
+        }
+
+        /* BUTTON SYSTEM */
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-strong), var(--accent));
+            color: white !important;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(30,58,138,0.25);
+        }
+
+        .btn-secondary {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* GLOBAL EMERGENCY BUTTON */
+
+        .floating-emergency {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #DC2626;
+            color: white;
+            font-size: 26px;
+            border: none;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(220,38,38,0.4);
+            transition: 0.3s ease;
+        }
+
+        .floating-emergency:hover {
+            transform: scale(1.1);
+            background: #B91C1C;
+        }
+
+        /* GLOBAL EMERGENCY MODAL */
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-box {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            position: relative;
+            animation: scaleIn 0.25s ease;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .emergency-box {
+            max-width: 460px;
+        }
+
+        .modal-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .modal-sub {
+            color: var(--text-light);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .close-btn:hover {
+            color: #DC2626;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .modal-btn.danger {
+            background: #DC2626;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-btn.emergency-secondary {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .modal-btn.emergency-secondary:hover {
+            background: var(--bg);
+        }
+
+        #emergencyResults .hospital-card {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: var(--card);
+            text-align: left;
+        }
+
+        #emergencyResults .hospital-card h4 {
+            margin-bottom: 6px;
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        #emergencyResults .hospital-card p {
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        #emergencyResults .hospital-card a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        #emergencyResults .hospital-card a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
 
         /* MOBILE */
 
         @media (max-width: 900px) {
+            .nav-links {
+                gap: 16px;
+            }
+
             .nav-links a span {
                 display: none;
             }
-        }
 
+            .trust-inner {
+                gap: 14px;
+                font-size: 12px;
+            }
+
+            .floating-emergency {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }
     </style>
 </head>
 
@@ -234,7 +492,10 @@
 
 <nav>
     <div class="container nav-inner">
-        <div class="logo">HealthTrackk</div>
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='healthtrackk-logo.png') }}" alt="HealthTrackk logo">
+            <span>HealthTrackk</span>
+        </a>
 
         <div class="nav-links">
 
@@ -252,7 +513,10 @@
                 <i data-lucide="bot"></i>
                 <span>{{ _("AI Assistant") }}</span>
             </a>
-
+            <a href="/fityoga" class="{% if request.path == '/fityoga' %}active{% endif %}">
+                <i data-lucide="dumbbell"></i>
+                <span>FitYoga</span>
+            </a>
             {% if "user_id" in session %}
 
                 <span style="font-weight:600;">
@@ -278,20 +542,7 @@
 
             {% endif %}
 
-            <!-- LANGUAGE DROPDOWN -->
-            <div class="language-dropdown">
-    <button class="lang-btn">
-        ENG
-        <i data-lucide="chevron-down"></i>
-    </button>
-
-
-                <div class="lang-menu">
-                    <a href="/change-language/en">🇬🇧 English</a>
-                    <a href="/change-language/hi">🇮🇳 हिन्दी</a>
-                    <a href="/change-language/mr">🇮🇳 मराठी</a>
-                </div>
-            </div>
+          
 
             <button id="themeToggle" class="theme-btn">
                 <i id="themeIcon" data-lucide="moon"></i>
@@ -301,25 +552,61 @@
     </div>
 </nav>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="global-flashes">
+            {% for category, message in messages %}
+                <div class="global-flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+
+
 {% block content %}{% endblock %}
+
+<!-- GLOBAL EMERGENCY MODAL -->
+<div id="emergencyModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box emergency-box">
+        <span class="close-btn" onclick="closeEmergencyModal()">×</span>
+
+        <div class="modal-icon">🚑</div>
+
+        <h2>Emergency Assistance</h2>
+        <p class="modal-sub">
+            Use the actions below for immediate medical help.
+        </p>
+
+        <div class="modal-buttons">
+            <button class="modal-btn danger" onclick="callAmbulance()">📞 Call Ambulance</button>
+            <button class="modal-btn emergency-secondary" onclick="shareLocation()">📍 Share My Location</button>
+            <button class="modal-btn emergency-secondary" onclick="findNearbyHospitals()">🏥 Nearby Hospitals</button>
+        </div>
+
+        <p id="emergencyStatus" style="margin-top:15px; font-size:14px; color:var(--text-light);"></p>
+        <div id="emergencyResults" style="margin-top:15px;"></div>
+    </div>
+</div>
 
 <footer>
     {{ _("© 2026 HealthTrackk — Smarter Health Decisions.") }}
 </footer>
 
+<button class="floating-emergency" onclick="openEmergencyModal()">
+    🚑
+</button>
+
 <script>
 lucide.createIcons();
 
-/* Apply saved theme */
 if (localStorage.getItem("theme") === "dark") {
     document.documentElement.classList.add("dark");
     document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
     lucide.createIcons();
 }
 
-/* Toggle theme */
 document.getElementById("themeToggle").addEventListener("click", function () {
-
     document.documentElement.classList.toggle("dark");
 
     if (document.documentElement.classList.contains("dark")) {
@@ -332,6 +619,114 @@ document.getElementById("themeToggle").addEventListener("click", function () {
 
     lucide.createIcons();
 });
+
+function openEmergencyModal() {
+    document.getElementById("emergencyModal").style.display = "flex";
+}
+
+function closeEmergencyModal() {
+    document.getElementById("emergencyModal").style.display = "none";
+}
+
+function callAmbulance() {
+    window.location.href = "tel:108";
+}
+
+function shareLocation() {
+    const status = document.getElementById("emergencyStatus");
+    const results = document.getElementById("emergencyResults");
+
+    status.innerText = "";
+    results.innerHTML = "";
+
+    if (!navigator.geolocation) {
+        status.innerText = "Geolocation is not supported by your browser.";
+        return;
+    }
+
+    status.innerText = "Getting your location...";
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            window.userLocation = { lat, lon };
+
+            const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            status.innerHTML = `Location captured. <a href="${mapLink}" target="_blank">Open in Maps</a>`;
+        },
+        function(error) {
+            status.innerText = "Unable to retrieve your location.";
+            console.error(error);
+        }
+    );
+}
+
+function findNearbyHospitals() {
+    const status = document.getElementById("emergencyStatus");
+    const results = document.getElementById("emergencyResults");
+
+    results.innerHTML = "";
+
+    if (!window.userLocation) {
+        status.innerText = "Please share your location first.";
+        return;
+    }
+
+    status.innerText = "Finding nearby hospitals...";
+
+    fetch("/nearby-hospitals", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            lat: window.userLocation.lat,
+            lon: window.userLocation.lon
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (!data.success) {
+            status.innerText = data.message || "Failed to fetch hospitals.";
+            return;
+        }
+
+        status.innerText = "Nearby hospitals found.";
+
+        let html = "";
+
+        for (let i = 0; i < data.hospitals.length; i++) {
+            const hospital = data.hospitals[i];
+
+          html += `
+    <div class="hospital-card">
+        <h4>${hospital.name}</h4>
+        <p>${hospital.address}</p>
+        <p><strong>${hospital.distance} km away</strong></p>
+        <a href="${hospital.maps_url}" target="_blank">Open in Maps</a>
+    </div>
+`;}
+
+        results.innerHTML = html;
+    })
+    .catch(function(error) {
+        console.error(error);
+        status.innerText = "Error fetching hospitals.";
+    });
+}
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+        navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+            .catch(function(error) {
+                console.error("Service worker registration failed:", error);
+            });
+    });
+}
 </script>
 
 </body>

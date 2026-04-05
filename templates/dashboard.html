@@ -1,139 +1,1757 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section style="padding:40px 0;">
-<div class="container">
+{% set total_predictions = predictions|length %}
+{% set high_risk_count = predictions|selectattr("2", "equalto", "High")|list|length %}
+{% set last_prediction = predictions[0][0] if predictions else "No Data" %}
 
-<div style="display:flex; gap:30px;">
+<section class="dashboard-page">
+    <div class="container dashboard-layout">
 
-    <!-- SIDEBAR -->
-    <div style="width:240px;">
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-card">
 
-        <div class="card" style="padding:20px;">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">🩺</div>
+                    <div>
+                        <h3>{{ session["user_name"] }}</h3>
+                        <p>HealthTrackk Dashboard</p>
+                    </div>
+                </div>
 
-            <h3 style="margin-bottom:20px;">
-                Hi {{ session["user_name"] }}
-            </h3>
+                <nav class="sidebar-nav">
+                    <a href="/dashboard?tab=overview" class="tab-link {% if active_tab == 'overview' %}active-tab{% endif %}">
+                        <span class="nav-icon">📊</span>
+                        <span>Overview</span>
+                    </a>
 
-            <div style="display:flex; flex-direction:column; gap:10px;">
+                    <a href="/dashboard?tab=records" class="tab-link {% if active_tab == 'records' %}active-tab{% endif %}">
+                        <span class="nav-icon">🗂️</span>
+                        <span>Records</span>
+                    </a>
 
-                <a href="/dashboard?tab=overview"
-                   class="tab-link {% if active_tab == 'overview' %}active-tab{% endif %}">
-                   Overview
-                </a>
+                    <a href="/dashboard?tab=vaccinations" class="tab-link {% if active_tab == 'vaccinations' %}active-tab{% endif %}">
+                        <span class="nav-icon">💉</span>
+                        <span>Vaccinations</span>
+                    </a>
 
-                <a href="/dashboard?tab=records"
-                   class="tab-link {% if active_tab == 'records' %}active-tab{% endif %}">
-                   Medical Records
-                </a>
+                    <a href="/dashboard?tab=profile" class="tab-link {% if active_tab == 'profile' %}active-tab{% endif %}">
+                        <span class="nav-icon">🧬</span>
+                        <span>Profile</span>
+                    </a>
 
-                <a href="/dashboard?tab=vaccinations"
-                   class="tab-link {% if active_tab == 'vaccinations' %}active-tab{% endif %}">
-                   Vaccinations
-                </a>
+                    <a href="/dashboard?tab=assistant" class="tab-link {% if active_tab == 'assistant' %}active-tab{% endif %}">
+                        <span class="nav-icon">🤖</span>
+                        <span>AI Assistant</span>
+                    </a>
 
-                <a href="/dashboard?tab=profile"
-                   class="tab-link {% if active_tab == 'profile' %}active-tab{% endif %}">
-                   Health Profile
-                </a>
+                    <a href="/dashboard?tab=emergency" class="tab-link {% if active_tab == 'emergency' %}active-tab{% endif %}">
+                        <span class="nav-icon">🚑</span>
+                        <span>Emergency</span>
+                    </a>
 
-                <a href="/dashboard?tab=assistant"
-                   class="tab-link {% if active_tab == 'assistant' %}active-tab{% endif %}">
-                   AI Assistant
-                </a>
+                    <a href="/logout" class="logout-link">
+                        <span class="nav-icon">↩️</span>
+                        <span>Logout</span>
+                    </a>
+                </nav>
 
-                <a href="/dashboard?tab=emergency"
-                   class="tab-link {% if active_tab == 'emergency' %}active-tab{% endif %}">
-                   Emergency
-                </a>
+                <div class="sidebar-bottom">
+                    <div class="sidebar-mini">
+                        <span class="mini-label">System</span>
+                        <strong>AI Active</strong>
+                    </div>
+                    <div class="sidebar-mini">
+                        <span class="mini-label">Security</span>
+                        <strong>Encrypted</strong>
+                    </div>
+                </div>
 
-                <a href="/logout">Logout</a>
+            </div>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="dashboard-main">
+
+            {% if active_tab == "overview" %}
+
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-primary">
+                    <div class="kpi-top">
+                        <span class="kpi-label">Health Score</span>
+                        <span class="kpi-icon">💙</span>
+                    </div>
+                    <h2>{{ health_score }}</h2>
+                    <p>/100 Overall</p>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">Predictions</span>
+                        <span class="kpi-icon">📈</span>
+                    </div>
+                    <h2>{{ total_predictions }}</h2>
+                    <p>Total Records</p>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">High Risk</span>
+                        <span class="kpi-icon">⚠️</span>
+                    </div>
+                    <h2>{{ high_risk_count }}</h2>
+                    <p>Critical Results</p>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">Latest</span>
+                        <span class="kpi-icon">🧾</span>
+                    </div>
+                    <h2 class="small-kpi">{{ last_prediction }}</h2>
+                    <p>Most Recent Assessment</p>
+                </div>
+            </div>
+
+            <div class="overview-grid">
+
+                <div class="left-panel">
+
+                    <div class="panel-card">
+                        <div class="panel-head">
+                            <h3>Risk Overview</h3>
+                            <span class="panel-badge">Live Data</span>
+                        </div>
+
+                        <div class="risk-grid">
+                            {% set heart_pred = predictions|selectattr("0", "equalto", "Heart Disease")|list %}
+                            {% set diabetes_pred = predictions|selectattr("0", "equalto", "Diabetes")|list %}
+                            {% set stroke_pred = predictions|selectattr("0", "equalto", "Stroke")|list %}
+
+                            {% set heart_prob = ((heart_pred[0][1] * 100) | round(1)) if heart_pred else 0 %}
+                            {% set diabetes_prob = ((diabetes_pred[0][1] * 100) | round(1)) if diabetes_pred else 0 %}
+                            {% set stroke_prob = ((stroke_pred[0][1] * 100) | round(1)) if stroke_pred else 0 %}
+
+                            <div class="risk-card">
+                                <div class="risk-row">
+                                    <div>
+                                        <span class="risk-name">❤️ Heart</span>
+                                        <strong>{{ heart_prob }}%</strong>
+                                    </div>
+                                    <span class="risk-tag">Cardiac</span>
+                                </div>
+                                <div class="risk-bar"><div class="risk-fill heart" style="width: {{ heart_prob }}%;"></div></div>
+                            </div>
+
+                            <div class="risk-card">
+                                <div class="risk-row">
+                                    <div>
+                                        <span class="risk-name">🩸 Diabetes</span>
+                                        <strong>{{ diabetes_prob }}%</strong>
+                                    </div>
+                                    <span class="risk-tag">Metabolic</span>
+                                </div>
+                                <div class="risk-bar"><div class="risk-fill diabetes" style="width: {{ diabetes_prob }}%;"></div></div>
+                            </div>
+
+                            <div class="risk-card">
+                                <div class="risk-row">
+                                    <div>
+                                        <span class="risk-name">🧠 Stroke</span>
+                                        <strong>{{ stroke_prob }}%</strong>
+                                    </div>
+                                    <span class="risk-tag">Neurology</span>
+                                </div>
+                                <div class="risk-bar"><div class="risk-fill stroke" style="width: {{ stroke_prob }}%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-card table-panel">
+                        <div class="panel-head">
+                            <h3>Recent Predictions</h3>
+                            <span class="panel-badge">{{ total_predictions }} entries</span>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table class="prediction-table">
+                                <thead>
+                                    <tr>
+                                        <th>Disease</th>
+                                        <th>Risk</th>
+                                        <th>Probability</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if predictions %}
+                                        {% for p in predictions %}
+                                        <tr>
+                                            <td>{{ p[0] }}</td>
+                                            <td>
+                                                <span class="risk-pill
+                                                    {% if p[2] == 'High' %}pill-high
+                                                    {% elif p[2] == 'Moderate' %}pill-moderate
+                                                    {% else %}pill-low
+                                                    {% endif %}">
+                                                    {{ p[2] }}
+                                                </span>
+                                            </td>
+                                            <td>{{ (p[1] * 100) | round(1) }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="3" class="empty-cell">No predictions yet</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="right-panel">
+
+                    <div class="panel-card compact-card hospital-panel-card">
+                        <div class="panel-head">
+                            <h3>Nearby Hospitals</h3>
+                            <span class="panel-badge">GPS</span>
+                        </div>
+
+                        <div class="hospital-hero">
+                            <div class="hospital-hero-icon-wrap">
+                                <div class="hospital-hero-icon">🏥</div>
+                                <div class="hospital-hero-pulse"></div>
+                            </div>
+                            <div class="hospital-hero-copy">
+                                <strong>Find care near you</strong>
+                                <p>Live location search with map preview, route and contact details.</p>
+                            </div>
+                        </div>
+
+                        <button class="primary-btn" onclick="getLocation()">📍 Find Hospitals</button>
+                        <p id="location-status" class="status-text"></p>
+
+                        <div id="hospital-results" class="hospital-results"></div>
+                    </div>
+
+                    <div class="panel-card compact-card emergency-card">
+                        <div class="panel-head">
+                            <h3>Emergency</h3>
+                            <span class="panel-badge danger-badge">Urgent</span>
+                        </div>
+
+                        <div class="emergency-stats">
+                            <div class="emergency-mini">
+                                <span>Ambulance</span>
+                                <strong>108</strong>
+                            </div>
+                            <div class="emergency-mini">
+                                <span>Status</span>
+                                <strong>Ready</strong>
+                            </div>
+                        </div>
+
+                        <button class="panic-btn" onclick="openEmergencyModal()">🚨 Open Emergency Panel</button>
+                    </div>
+
+                </div>
+            </div>
+
+            {% elif active_tab == "records" %}
+
+            <div class="single-tab-card">
+                <div class="panel-head">
+                    <h3>Medical Records</h3>
+                    <span class="panel-badge">Module</span>
+                </div>
+                <div class="single-placeholder">
+                    <div class="placeholder-data">
+                        <span class="placeholder-icon">🗂️</span>
+                        <strong>Records Module</strong>
+                        <p>Prescriptions, reports, and files can be stored here.</p>
+                    </div>
+                </div>
+            </div>
+
+            {% elif active_tab == "vaccinations" %}
+
+            <div class="single-tab-card">
+                <div class="panel-head">
+                    <h3>Vaccinations</h3>
+                    <span class="panel-badge">Tracker</span>
+                </div>
+                <div class="single-placeholder">
+                    <div class="placeholder-data">
+                        <span class="placeholder-icon">💉</span>
+                        <strong>Vaccination Tracker</strong>
+                        <p>Track doses, reminders, and upcoming vaccines here.</p>
+                    </div>
+                </div>
+            </div>
+
+            {% elif active_tab == "profile" %}
+
+            <div class="single-tab-card">
+                <div class="panel-head">
+                    <h3>Health Profile</h3>
+                    <span class="panel-badge">Profile</span>
+                </div>
+                <div class="single-placeholder">
+                    <div class="placeholder-data">
+                        <span class="placeholder-icon">🧬</span>
+                        <strong>Health Profile</strong>
+                        <p>Add blood group, allergies, conditions, and emergency data here.</p>
+                    </div>
+                </div>
+            </div>
+
+            {% elif active_tab == "assistant" %}
+
+            <div class="single-tab-card">
+                <div class="panel-head">
+                    <h3>AI Assistant</h3>
+                    <span class="panel-badge">Active</span>
+                </div>
+                <div class="single-placeholder">
+                    <div class="placeholder-data">
+                        <span class="placeholder-icon">🤖</span>
+                        <strong>Assistant Module</strong>
+                        <p>Open the full chatbot interface for live AI health guidance.</p>
+                        <a href="/chatbot" class="primary-link-btn">Open Assistant</a>
+                    </div>
+                </div>
+            </div>
+
+            {% elif active_tab == "emergency" %}
+
+            <div class="single-tab-card">
+                <div class="panel-head">
+                    <h3>Emergency</h3>
+                    <span class="panel-badge danger-badge">Critical</span>
+                </div>
+                <div class="single-placeholder">
+                    <div class="placeholder-data">
+                        <span class="placeholder-icon">🚑</span>
+                        <strong>Emergency Tools</strong>
+                        <p>Use the emergency modal for urgent help and nearby hospital access.</p>
+                        <button class="panic-btn" onclick="openEmergencyModal()">🚨 PANIC</button>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+
+        </main>
+    </div>
+</section>
+
+<!-- HOSPITAL RESULTS POPUP -->
+<div class="modal-overlay" id="hospitalResultsModal">
+    <div class="modal-card hospital-results-modal-card modal-enter">
+        <button class="modal-close" onclick="closeHospitalResultsModal()">×</button>
+
+        <div class="modal-top">
+            <div class="modal-icon">🏥</div>
+            <div>
+                <p class="modal-kicker">Nearby Hospitals</p>
+                <h3>Hospital Search Results</h3>
+                <p id="hospitalResultsSubtitle" class="modal-sub">Hospitals near your current location.</p>
             </div>
         </div>
 
+        <div id="hospitalResultsModalList" class="hospital-results-modal-list"></div>
     </div>
-
-    <!-- MAIN CONTENT -->
-    <div style="flex:1;">
-
-        {% if active_tab == "overview" %}
-
-            <div class="card" style="padding:30px; margin-bottom:30px;">
-                <h2>Health Score</h2>
-                <h1 style="font-size:60px;">{{ health_score }}/100</h1>
-            </div>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;">
-
-                {% for p in predictions %}
-                <div class="card" style="padding:20px;">
-                    <h3>{{ p[0] }}</h3>
-                    <p>Risk: {{ p[2] }}</p>
-                    <p>Probability: {{ (p[1] * 100) | round(2) }}%</p>
-                </div>
-                {% endfor %}
-
-            </div>
-
-        {% elif active_tab == "records" %}
-
-            <div class="card" style="padding:30px;">
-                <h2>Medical Records</h2>
-                <p>Feature Coming Next Step</p>
-            </div>
-
-        {% elif active_tab == "vaccinations" %}
-
-            <div class="card" style="padding:30px;">
-                <h2>Vaccination Tracker</h2>
-                <p>Feature Coming Next Step</p>
-            </div>
-
-        {% elif active_tab == "profile" %}
-
-            <div class="card" style="padding:30px;">
-                <h2>Health Profile</h2>
-                <p>Feature Coming Next Step</p>
-            </div>
-
-        {% elif active_tab == "assistant" %}
-
-            <div class="card" style="padding:30px;">
-                <h2>AI Assistant</h2>
-                <p>Integrated chatbot panel here.</p>
-            </div>
-
-        {% elif active_tab == "emergency" %}
-
-            <div class="card" style="padding:30px;">
-                <h2>Emergency Panel</h2>
-                <button style="background:red; color:white; padding:15px 30px; border:none; border-radius:8px;">
-                    PANIC
-                </button>
-            </div>
-
-        {% endif %}
-
-    </div>
-
 </div>
 
+<!-- HOSPITAL POPUP -->
+<div class="modal-overlay" id="hospitalModal">
+    <div class="modal-card hospital-modal-card modal-enter">
+        <button class="modal-close" onclick="closeHospitalModal()">×</button>
+
+        <div class="modal-top">
+            <div class="modal-icon">🏥</div>
+            <div>
+                <p class="modal-kicker">Nearby Hospital</p>
+                <h3 id="modalHospitalName">Hospital Name</h3>
+                <p id="modalHospitalDistance" class="modal-sub">Distance</p>
+            </div>
+        </div>
+
+        <div class="route-visual-wrap">
+            <div class="route-line"></div>
+            <div class="route-points">
+                <div class="route-point user-point">📍</div>
+                <div class="route-distance-badge" id="routeDistanceBadge">0 km</div>
+                <div class="route-point hospital-point">🏥</div>
+            </div>
+        </div>
+
+        <div class="modal-detail-grid">
+            <div class="modal-detail-box">
+                <span>Address</span>
+                <strong id="modalHospitalAddress">-</strong>
+            </div>
+            <div class="modal-detail-box">
+                <span>Doctor / Operator</span>
+                <strong id="modalHospitalDoctor">-</strong>
+            </div>
+            <div class="modal-detail-box">
+                <span>Mobile</span>
+                <strong id="modalHospitalPhone">-</strong>
+            </div>
+            <div class="modal-detail-box">
+                <span>Emergency</span>
+                <strong id="modalHospitalEmergency">-</strong>
+            </div>
+        </div>
+
+        <div class="modal-map-wrap">
+            <iframe id="modalHospitalMap" class="hospital-map-frame" loading="lazy" src=""></iframe>
+        </div>
+
+        <div class="modal-actions">
+            <a id="modalHospitalMapsLink" href="#" target="_blank" rel="noopener noreferrer" class="modal-action-btn">
+                📍 Open in Google Maps
+            </a>
+            <a id="modalHospitalRouteLink" href="#" target="_blank" rel="noopener noreferrer" class="modal-action-btn secondary-route-btn">
+                🛣️ Show Route
+            </a>
+            <a id="modalHospitalWebsite" href="#" target="_blank" rel="noopener noreferrer" class="modal-action-btn secondary-btn" style="display:none;">
+                🌐 Visit Website
+            </a>
+        </div>
+    </div>
 </div>
-</section>
+
+<!-- EMERGENCY POPUP -->
+<div class="modal-overlay" id="emergencyModal">
+    <div class="modal-card emergency-modal-card modal-enter">
+        <button class="modal-close" onclick="closeEmergencyModal()">×</button>
+
+        <div class="modal-top">
+            <div class="modal-icon danger">🚨</div>
+            <div>
+                <p class="modal-kicker">Emergency Support</p>
+                <h3>Critical Response Panel</h3>
+                <p class="modal-sub">Quick emergency access for urgent situations.</p>
+            </div>
+        </div>
+
+        <div class="emergency-modal-grid">
+            <div class="emergency-modal-box">
+                <span>Ambulance</span>
+                <strong>108</strong>
+            </div>
+            <div class="emergency-modal-box">
+                <span>Police</span>
+                <strong>100</strong>
+            </div>
+            <div class="emergency-modal-box">
+                <span>Women Helpline</span>
+                <strong>1091</strong>
+            </div>
+            <div class="emergency-modal-box">
+                <span>Medical Advice</span>
+                <strong>Nearest hospital</strong>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
-.tab-link {
-    text-decoration:none;
-    padding:8px 12px;
-    border-radius:6px;
-    color:#64748B;
+.dashboard-page {
+    height: calc(100vh - 86px);
+    overflow: hidden;
+    padding: 12px 0;
+    background:
+        radial-gradient(circle at top right, rgba(37,99,235,0.08), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(14,165,164,0.06), transparent 30%);
+}
+
+.dashboard-layout {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 14px;
+    align-items: stretch;
+}
+
+.dashboard-sidebar,
+.dashboard-main {
+    min-width: 0;
+    min-height: 0;
+}
+
+.dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar-card {
+    height: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.05);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.sidebar-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,#2563EB,#0EA5A4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 12px 24px rgba(37,99,235,0.18);
+}
+
+.sidebar-user h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.sidebar-user p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: auto;
+}
+
+.tab-link,
+.logout-link {
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: var(--text-light);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.22s ease;
+}
+
+.tab-link:hover,
+.logout-link:hover {
+    background: var(--bg);
+    color: var(--primary);
 }
 
 .active-tab {
-    background:#1E3A8A;
-    color:white;
+    background: linear-gradient(135deg,#2563EB,#1E3A8A);
+    color: white !important;
+    box-shadow: 0 12px 22px rgba(37,99,235,0.18);
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding-top: 14px;
+}
+
+.sidebar-mini {
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.mini-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.sidebar-mini strong {
+    display: block;
+    font-size: 15px;
+}
+
+/* KPI GRID */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.04);
+    padding: 16px;
+    min-width: 0;
+}
+
+.kpi-primary {
+    background: linear-gradient(135deg, rgba(37,99,235,0.10), rgba(14,165,164,0.10));
+}
+
+.kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.kpi-icon {
+    font-size: 20px;
+}
+
+.kpi-card h2 {
+    margin: 0 0 6px;
+    font-size: 34px;
+    line-height: 1.05;
+}
+
+.kpi-card p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.small-kpi {
+    font-size: 20px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* MAIN GRID */
+
+.overview-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.65fr);
+    gap: 12px;
+}
+
+.left-panel,
+.right-panel {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-card,
+.single-tab-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.04);
+}
+
+.panel-card {
+    padding: 16px;
+    min-width: 0;
+}
+
+.compact-card {
+    min-height: 0;
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.panel-head h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.panel-badge {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(37,99,235,0.08);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.danger-badge {
+    background: rgba(220,38,38,0.10);
+    color: #B91C1C;
+}
+
+/* RISK GRID */
+
+.risk-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.risk-card {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 18px;
+    padding: 14px;
+}
+
+.risk-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.risk-name {
+    display: block;
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.risk-row strong {
+    font-size: 22px;
+}
+
+.risk-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.risk-bar {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(37,99,235,0.08);
+    overflow: hidden;
+}
+
+.risk-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.risk-fill.heart {
+    background: linear-gradient(90deg,#fb7185,#ef4444);
+}
+
+.risk-fill.diabetes {
+    background: linear-gradient(90deg,#f59e0b,#f97316);
+}
+
+.risk-fill.stroke {
+    background: linear-gradient(90deg,#60a5fa,#2563EB);
+}
+
+/* TABLE */
+
+.table-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.prediction-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.prediction-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 1;
+}
+
+.prediction-table th,
+.prediction-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.prediction-table th {
+    color: var(--text-light);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.empty-cell {
+    text-align: center;
+    color: var(--text-light);
+    padding: 28px !important;
+}
+
+.risk-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pill-high {
+    background: rgba(220,38,38,0.10);
+    color: #B91C1C;
+}
+
+.pill-moderate {
+    background: rgba(245,158,11,0.12);
+    color: #B45309;
+}
+
+.pill-low {
+    background: rgba(34,197,94,0.12);
+    color: #15803D;
+}
+
+/* RIGHT PANEL */
+
+.hospital-panel-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hospital-hero {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(14,165,164,0.08));
+    border: 1px solid rgba(37,99,235,0.08);
+}
+
+.hospital-hero-icon-wrap {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.hospital-hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg,#2563EB,#0EA5A4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 14px 30px rgba(37,99,235,0.22);
+}
+
+.hospital-hero-pulse {
+    position: absolute;
+    inset: -6px;
+    border-radius: 22px;
+    border: 1px solid rgba(37,99,235,0.18);
+    animation: hospitalPulse 2.2s infinite;
+}
+
+.hospital-hero-copy strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.hospital-hero-copy p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.primary-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg,#2563EB,#1E3A8A);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 14px 28px rgba(37,99,235,0.18);
+    margin-bottom: 10px;
+}
+
+.status-text {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--text-light);
+    min-height: 18px;
+}
+
+.hospital-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+    min-height: 0;
+    max-height: 320px;
+    padding-right: 4px;
+}
+
+.hospital-results-modal-card {
+    max-width: 980px;
+}
+
+.hospital-results-modal-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.hospital-card {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,1), rgba(248,250,252,1));
+    box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: 0.18s ease;
+    animation: cardPop 0.35s ease;
+}
+
+.hospital-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 26px rgba(37,99,235,0.10);
+    border-color: rgba(37,99,235,0.18);
+}
+
+.hospital-card h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.hospital-card p {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.hospital-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.hospital-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(37,99,235,0.08);
+    color: var(--primary);
+}
+
+.view-more-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.emergency-card {
+    border-color: rgba(220,38,38,0.16);
+}
+
+.emergency-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.emergency-mini {
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.emergency-mini span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.emergency-mini strong {
+    font-size: 16px;
+}
+
+.panic-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 16px;
+    background: linear-gradient(135deg,#DC2626,#B91C1C);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 16px 30px rgba(220,38,38,0.20);
+}
+
+/* POPUP */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.62);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 99999;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 940px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 30px;
+    box-shadow: 0 34px 80px rgba(15,23,42,0.24);
+    padding: 24px;
+}
+
+.modal-enter {
+    animation: modalIn 0.35s ease;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(15,23,42,0.06);
+    font-size: 26px;
+    color: #0f172a;
+    cursor: pointer;
+}
+
+.modal-top {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    background: linear-gradient(135deg,#2563EB,#0EA5A4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    flex-shrink: 0;
+    box-shadow: 0 18px 34px rgba(37,99,235,0.22);
+}
+
+.modal-icon.danger {
+    background: linear-gradient(135deg,#DC2626,#F97316);
+}
+
+.modal-kicker {
+    margin: 0 0 4px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.modal-top h3 {
+    margin: 0 0 6px;
+    font-size: 28px;
+}
+
+.modal-sub {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.route-visual-wrap {
+    position: relative;
+    margin: 0 0 18px;
+    padding: 16px 14px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(14,165,164,0.08));
+    overflow: hidden;
+}
+
+.route-line {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    top: 50%;
+    height: 4px;
+    margin-top: -2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2563EB, #0EA5A4);
+}
+
+.route-points {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.route-point {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    z-index: 2;
+}
+
+.route-distance-badge {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 10px 18px rgba(15,23,42,0.22);
+    animation: floatBadge 2.6s ease-in-out infinite;
+}
+
+.modal-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.modal-detail-box {
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.modal-detail-box span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.modal-detail-box strong {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+    word-break: break-word;
+}
+
+.modal-map-wrap {
+    margin-bottom: 18px;
+}
+
+.hospital-map-frame {
+    width: 100%;
+    height: 320px;
+    border: none;
+    border-radius: 22px;
+    background: #e2e8f0;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.modal-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,#2563EB,#1E3A8A);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    min-width: 180px;
+    box-shadow: 0 12px 24px rgba(37,99,235,0.18);
+}
+
+.secondary-route-btn {
+    background: linear-gradient(135deg,#0EA5A4,#0F766E);
+}
+
+.secondary-btn {
+    background: linear-gradient(135deg,#7C3AED,#5B21B6);
+}
+
+.emergency-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.emergency-modal-box {
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.emergency-modal-box span {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 6px;
+}
+
+.emergency-modal-box strong {
+    font-size: 18px;
+}
+
+.single-tab-card {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.single-placeholder {
+    flex: 1;
+    display: flex;
+}
+
+.placeholder-data {
+    width: 100%;
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    background: var(--bg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    display: inline-block;
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.placeholder-data strong {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.placeholder-data p {
+    margin: 0;
+}
+
+.primary-link-btn {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#2563EB,#1E3A8A);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+@keyframes hospitalPulse {
+    0% { transform: scale(0.96); opacity: 0.7; }
+    70% { transform: scale(1.12); opacity: 0; }
+    100% { transform: scale(1.12); opacity: 0; }
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cardPop {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes floatBadge {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+@media (max-width: 1180px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .risk-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .dashboard-page {
+        height: auto;
+        overflow: visible;
+    }
+
+    .dashboard-layout {
+        height: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-main {
+        overflow: visible;
+    }
+
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .hospital-results-modal-list,
+    .modal-detail-grid,
+    .emergency-modal-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .prediction-table th,
+    .prediction-table td {
+        padding: 12px;
+    }
+
+    .modal-card {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .modal-top h3 {
+        font-size: 22px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-action-btn {
+        width: 100%;
+        min-width: 0;
+    }
 }
 </style>
+
+<script>
+function escapeHtml(text) {
+    if (text === null || text === undefined) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getLocation() {
+    const status = document.getElementById("location-status");
+    const results = document.getElementById("hospital-results");
+
+    if (!status || !results) return;
+
+    results.innerHTML = "";
+    status.innerText = "Getting your location...";
+
+    if (!navigator.geolocation) {
+        status.innerText = "Geolocation is not supported by your browser.";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            status.innerText = "Finding nearby hospitals...";
+
+            fetch("/nearby-hospitals", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ lat: lat, lon: lon })
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || "Request failed");
+                }
+                return data;
+            })
+            .then(data => {
+                if (!data.success || !data.hospitals || data.hospitals.length === 0) {
+                    status.innerText = "No nearby hospitals found.";
+                    results.innerHTML = `
+                        <div class="hospital-card">
+                            <h4>No hospitals found</h4>
+                            <p>Try again after allowing location access or check internet connection.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                status.innerText = `Found ${data.hospitals.length} nearby hospitals.`;
+
+                let html = "";
+                data.hospitals.forEach((hospital, index) => {
+                    const safeHospital = {
+                        name: hospital.name || "Unknown Hospital",
+                        address: hospital.address || "Nearby location",
+                        distance: hospital.distance || "Not available",
+                        doctor_name: hospital.doctor_name || "Not available",
+                        phone: hospital.phone || "Not available",
+                        emergency: hospital.emergency || "Not available",
+                        website: hospital.website || "",
+                        maps_url: hospital.maps_url || "#",
+                        lat: hospital.lat || null,
+                        lon: hospital.lon || null,
+                        user_lat: lat,
+                        user_lon: lon
+                    };
+
+                    const encoded = encodeURIComponent(JSON.stringify(safeHospital));
+
+                    html += `
+                        <div class="hospital-card" onclick="openHospitalModalFromCard('${encoded}')">
+                            <h4>${escapeHtml(safeHospital.name)}</h4>
+                            <p><strong>Address:</strong> ${escapeHtml(safeHospital.address)}</p>
+                            <p><strong>Distance:</strong> ${escapeHtml(safeHospital.distance)} km</p>
+                            <p><strong>Doctor / Operator:</strong> ${escapeHtml(safeHospital.doctor_name)}</p>
+                            <div class="hospital-card-footer">
+                                <span class="hospital-chip">📍 Tap for map</span>
+                                <span class="view-more-link">View details →</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                results.innerHTML = html;
+                openHospitalResultsModal(
+                    data.hospitals.map(function(hospital) {
+                        return {
+                            name: hospital.name || "Unknown Hospital",
+                            address: hospital.address || "Nearby location",
+                            distance: hospital.distance || "Not available",
+                            doctor_name: hospital.doctor_name || "Not available",
+                            phone: hospital.phone || "Not available",
+                            emergency: hospital.emergency || "Not available",
+                            website: hospital.website || "",
+                            maps_url: hospital.maps_url || "#",
+                            lat: hospital.lat || null,
+                            lon: hospital.lon || null,
+                            user_lat: lat,
+                            user_lon: lon
+                        };
+                    }),
+                    data.hospitals.length
+                );
+            })
+            .catch(error => {
+                console.error("Hospital fetch error:", error);
+                status.innerText = error.message || "Failed to fetch hospitals.";
+                results.innerHTML = `
+                    <div class="hospital-card">
+                        <h4>Could not load hospitals</h4>
+                        <p>${escapeHtml(error.message || "Something went wrong while fetching nearby hospitals.")}</p>
+                    </div>
+                `;
+            });
+        },
+        function(error) {
+            console.error("Geolocation error:", error);
+
+            if (error.code === 1) {
+                status.innerText = "Location permission denied. Please allow location access.";
+            } else if (error.code === 2) {
+                status.innerText = "Location unavailable. Please try again.";
+            } else if (error.code === 3) {
+                status.innerText = "Location request timed out.";
+            } else {
+                status.innerText = "Unable to retrieve your location.";
+            }
+
+            results.innerHTML = `
+                <div class="hospital-card">
+                    <h4>Location needed</h4>
+                    <p>Please allow browser location access to find nearby hospitals.</p>
+                </div>
+            `;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+function openHospitalModalFromCard(encodedHospital) {
+    try {
+        const hospital = JSON.parse(decodeURIComponent(encodedHospital));
+        openHospitalModal(hospital);
+    } catch (e) {
+        console.error("Hospital modal parse error:", e);
+    }
+}
+
+function openHospitalResultsModal(hospitals, count) {
+    const modal = document.getElementById("hospitalResultsModal");
+    const list = document.getElementById("hospitalResultsModalList");
+    const subtitle = document.getElementById("hospitalResultsSubtitle");
+
+    if (!modal || !list || !subtitle) return;
+
+    subtitle.innerText = count
+        ? `${count} hospitals found near your current location.`
+        : "Hospitals near your current location.";
+
+    list.innerHTML = hospitals.map(function(hospital) {
+        const encoded = encodeURIComponent(JSON.stringify(hospital));
+
+        return `
+            <div class="hospital-card" onclick="openHospitalModalFromCard('${encoded}')">
+                <h4>${escapeHtml(hospital.name || "Unknown Hospital")}</h4>
+                <p><strong>Address:</strong> ${escapeHtml(hospital.address || "Nearby location")}</p>
+                <p><strong>Distance:</strong> ${escapeHtml(hospital.distance || "Not available")} km</p>
+                <p><strong>Doctor / Operator:</strong> ${escapeHtml(hospital.doctor_name || "Not available")}</p>
+                <div class="hospital-card-footer">
+                    <span class="hospital-chip">📍 Tap for details</span>
+                    <span class="view-more-link">Open →</span>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+}
+
+function closeHospitalResultsModal() {
+    const modal = document.getElementById("hospitalResultsModal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
+}
+
+function openHospitalModal(hospital) {
+    const modal = document.getElementById("hospitalModal");
+    if (!modal || !hospital) return;
+
+    document.getElementById("modalHospitalName").innerText = hospital.name || "Unknown Hospital";
+    document.getElementById("modalHospitalDistance").innerText = hospital.distance ? `${hospital.distance} km away` : "Distance not available";
+    document.getElementById("routeDistanceBadge").innerText = hospital.distance ? `${hospital.distance} km` : "N/A";
+    document.getElementById("modalHospitalAddress").innerText = hospital.address || "Nearby location";
+    document.getElementById("modalHospitalDoctor").innerText = hospital.doctor_name || "Not available";
+    document.getElementById("modalHospitalPhone").innerText = hospital.phone || "Not available";
+    document.getElementById("modalHospitalEmergency").innerText = hospital.emergency || "Not available";
+
+    const mapsLink = document.getElementById("modalHospitalMapsLink");
+    mapsLink.href = hospital.maps_url || "#";
+
+    const routeLink = document.getElementById("modalHospitalRouteLink");
+    if (hospital.user_lat && hospital.user_lon && hospital.lat && hospital.lon) {
+        routeLink.href = `https://www.google.com/maps/dir/${hospital.user_lat},${hospital.user_lon}/${hospital.lat},${hospital.lon}`;
+    } else {
+        routeLink.href = hospital.maps_url || "#";
+    }
+
+    const websiteBtn = document.getElementById("modalHospitalWebsite");
+    if (hospital.website && hospital.website !== "") {
+        websiteBtn.href = hospital.website;
+        websiteBtn.style.display = "inline-flex";
+    } else {
+        websiteBtn.style.display = "none";
+    }
+
+    const mapFrame = document.getElementById("modalHospitalMap");
+    if (hospital.lat && hospital.lon) {
+        const bbox = `${hospital.lon - 0.01}%2C${hospital.lat - 0.01}%2C${hospital.lon + 0.01}%2C${hospital.lat + 0.01}`;
+        mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${hospital.lat}%2C${hospital.lon}`;
+    } else {
+        mapFrame.src = "";
+    }
+
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+}
+
+function closeHospitalModal() {
+    const modal = document.getElementById("hospitalModal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
+}
+
+function openEmergencyModal() {
+    const modal = document.getElementById("emergencyModal");
+    if (!modal) return;
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+}
+
+function closeEmergencyModal() {
+    const modal = document.getElementById("emergencyModal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
+}
+
+document.addEventListener("click", function(e) {
+    const hospitalResultsModal = document.getElementById("hospitalResultsModal");
+    const hospitalModal = document.getElementById("hospitalModal");
+    const emergencyModal = document.getElementById("emergencyModal");
+
+    if (e.target === hospitalResultsModal) closeHospitalResultsModal();
+    if (e.target === hospitalModal) closeHospitalModal();
+    if (e.target === emergencyModal) closeEmergencyModal();
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+        closeHospitalResultsModal();
+        closeHospitalModal();
+        closeEmergencyModal();
+    }
+});
+</script>
 
 {% endblock %}

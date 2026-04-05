@@ -1,0 +1,1156 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="assessment-page">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <div class="container assessment-shell">
+        <div class="assessment-card">
+            <div class="hero-strip">
+                <div class="hero-icon-wrap">
+                    <div class="hero-icon pulse-ring">
+                        <span>🩺</span>
+                    </div>
+                </div>
+
+                <div class="hero-copy">
+                    <p class="section-kicker">AI HEALTH SCREENING</p>
+                    <h1>Smart Symptom Assessment</h1>
+                    <p class="hero-sub">
+                        Answer a guided set of health questions for an AI-based disease screening with a premium result popup and nearby hospital support.
+                    </p>
+                </div>
+
+                <div class="hero-badge">
+                    <div class="badge-dot"></div>
+                    <span>Live Analysis</span>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="error-box">
+                <span class="error-emoji">⚠</span>
+                <div>{{ error }}</div>
+            </div>
+            {% endif %}
+
+            <form method="POST" class="assessment-form" id="assessmentForm">
+                <div class="form-section glass-card">
+                    <div class="section-head">
+                        <div class="section-icon">👤</div>
+                        <div>
+                            <h3>Basic Information</h3>
+                            <p>Foundational inputs for screening accuracy</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" name="age" required placeholder="Enter your age">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sex</label>
+                            <select name="sex" required>
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section glass-card">
+                    <div class="section-head">
+                        <div class="section-icon">📊</div>
+                        <div>
+                            <h3>Health Indicators</h3>
+                            <p>Vitals and lifestyle factors that influence risk</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Blood Pressure</label>
+                            <select name="bp" required>
+                                <option value="">Select</option>
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Blood Sugar Level</label>
+                            <select name="sugar" required>
+                                <option value="">Select</option>
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Do you smoke?</label>
+                            <select name="smoking" required>
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Do you exercise regularly?</label>
+                            <select name="exercise" required>
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Family History</label>
+                            <select name="family_history" required>
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stress Level</label>
+                            <select name="stress" required>
+                                <option value="">Select</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section glass-card">
+                    <div class="section-head">
+                        <div class="section-icon">🧬</div>
+                        <div>
+                            <h3>Select Symptoms</h3>
+                            <p>Choose all symptoms that apply to you</p>
+                        </div>
+                    </div>
+
+                    <div class="symptom-block">
+                        <div class="symptom-group-title">❤️ Heart & Circulation</div>
+                        <div class="symptom-grid">
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="chest_pain"><span>Chest Pain</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="shortness_of_breath"><span>Shortness of Breath</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="palpitations"><span>Heart Palpitations</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="fatigue"><span>Severe Fatigue</span></label>
+                        </div>
+                    </div>
+
+                    <div class="symptom-block">
+                        <div class="symptom-group-title">🩸 Diabetes Related</div>
+                        <div class="symptom-grid">
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="frequent_urination"><span>Frequent Urination</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="increased_thirst"><span>Increased Thirst</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="weight_loss"><span>Weight Loss</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="blurred_vision"><span>Blurred Vision</span></label>
+                        </div>
+                    </div>
+
+                    <div class="symptom-block">
+                        <div class="symptom-group-title">🧠 Stroke & Neurology</div>
+                        <div class="symptom-grid">
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="slurred_speech"><span>Slurred Speech</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="one_side_weakness"><span>One Side Weakness</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="severe_headache"><span>Severe Headache</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="dizziness"><span>Dizziness</span></label>
+                        </div>
+                    </div>
+
+                    <div class="symptom-block">
+                        <div class="symptom-group-title">⚕ General / Other</div>
+                        <div class="symptom-grid">
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="headache"><span>Persistent Headache</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="swelling"><span>Swelling</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="back_pain"><span>Back Pain</span></label>
+                            <label class="symptom-pill"><input type="checkbox" name="symptoms" value="high_blood_pressure"><span>High Blood Pressure</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="analyzeBtn">
+                    <span class="btn-icon">✨</span>
+                    <span>Analyze Symptoms</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="analyzing-overlay" id="analyzingOverlay">
+    <div class="analyzing-card">
+        <div class="scanner-wrap">
+            <div class="scanner-core">🧠</div>
+            <div class="scanner-ring ring-1"></div>
+            <div class="scanner-ring ring-2"></div>
+            <div class="scanner-ring ring-3"></div>
+        </div>
+        <h3>Analyzing your health data</h3>
+        <p>Reviewing symptoms, lifestyle indicators, and probable disease patterns...</p>
+
+        <div class="analyzing-steps">
+            <div class="step-line"><span></span></div>
+            <div class="step-texts">
+                <div>Scanning symptom clusters</div>
+                <div>Calculating risk score</div>
+                <div>Preparing premium result card</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if show_popup %}
+<div class="popup-overlay" id="resultPopup">
+    <div class="popup-card">
+        <button class="popup-close" onclick="closePopup()">×</button>
+
+        <div class="popup-top">
+            <div class="popup-main-icon">🩺</div>
+            <p class="section-kicker">AI PREDICTION REPORT</p>
+            <h2>{{ result }}</h2>
+            <p class="popup-sub">Preliminary disease prediction based on your submitted responses.</p>
+        </div>
+
+        <div class="popup-stat-grid">
+            <div class="popup-stat">
+                <span>Risk Level</span>
+                <strong class="
+                    {% if risk == 'High' %}risk-high
+                    {% elif risk == 'Moderate' %}risk-moderate
+                    {% else %}risk-low
+                    {% endif %}
+                ">{{ risk }}</strong>
+            </div>
+            <div class="popup-stat">
+                <span>Score</span>
+                <strong>{{ score }}</strong>
+            </div>
+            <div class="popup-stat">
+                <span>Type</span>
+                <strong>AI Screening</strong>
+            </div>
+        </div>
+
+        {% if suggestions %}
+        <div class="popup-suggestion-grid">
+            <div class="popup-suggestion-card">
+                <h4>🥗 Diet</h4>
+                <ul>
+                    {% for item in suggestions.diet %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="popup-suggestion-card">
+                <h4>🏃 Exercise</h4>
+                <ul>
+                    {% for item in suggestions.exercise %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="popup-suggestion-card">
+                <h4>🧘 Yoga</h4>
+                <ul>
+                    {% for item in suggestions.yoga %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="popup-suggestion-card warning-card">
+                <h4>⚠ Important Note</h4>
+                <ul>
+                    {% for item in suggestions.warning %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="hospital-panel">
+            <div class="hospital-head">
+                <div>
+                    <h4>🏥 Nearby Hospitals</h4>
+                    <p>Use your location to find hospitals around you</p>
+                </div>
+                <button type="button" class="hospital-btn" onclick="findNearbyHospitals()">Find Nearby</button>
+            </div>
+
+            <div id="hospitalStatus" class="hospital-status">Tap “Find Nearby” to load nearby hospitals.</div>
+            <div id="hospitalList" class="hospital-list"></div>
+        </div>
+
+        <div class="popup-footer-note">
+            This is an AI-based preliminary assessment and does not replace a certified doctor or emergency service.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+:root {
+    --accent-1: #2563eb;
+    --accent-2: #06b6d4;
+    --accent-3: #7c3aed;
+    --card-deep: rgba(255,255,255,0.78);
+    --glass-border: rgba(255,255,255,0.38);
+    --shadow-xl: 0 30px 90px rgba(15, 23, 42, 0.16);
+}
+
+.assessment-page {
+    position: relative;
+    min-height: calc(100vh - 80px);
+    padding: 36px 0 54px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(37,99,235,0.14), transparent 22%),
+        radial-gradient(circle at 85% 18%, rgba(6,182,212,0.12), transparent 20%),
+        radial-gradient(circle at 70% 80%, rgba(124,58,237,0.10), transparent 22%),
+        linear-gradient(135deg, #f8fbff 0%, #f4f9ff 48%, #eef6ff 100%);
+}
+
+.bg-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+    background-image:
+        linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+    background-size: 34px 34px;
+    pointer-events: none;
+}
+
+.bg-orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(40px);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.orb-1 {
+    width: 240px;
+    height: 240px;
+    background: rgba(37,99,235,0.18);
+    top: 50px;
+    left: -40px;
+    animation: floatOrb 9s ease-in-out infinite;
+}
+
+.orb-2 {
+    width: 280px;
+    height: 280px;
+    background: rgba(6,182,212,0.16);
+    right: -60px;
+    bottom: 30px;
+    animation: floatOrb 11s ease-in-out infinite reverse;
+}
+
+.assessment-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+}
+
+.assessment-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(255,255,255,0.72));
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(18px);
+    padding: 34px;
+    overflow: hidden;
+    animation: fadeUp 0.7s ease;
+}
+
+.hero-strip {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.hero-icon-wrap {
+    position: relative;
+}
+
+.hero-icon {
+    width: 82px;
+    height: 82px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 34px;
+    box-shadow: 0 22px 40px rgba(37,99,235,0.28);
+    position: relative;
+    z-index: 2;
+}
+
+.pulse-ring::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 30px;
+    border: 1px solid rgba(37,99,235,0.25);
+    animation: pulseGlow 2.2s infinite;
+}
+
+.hero-copy h1 {
+    margin: 0 0 10px;
+    font-size: 38px;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+}
+
+.section-kicker {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--accent-1);
+    text-transform: uppercase;
+}
+
+.hero-sub,
+.popup-sub,
+.popup-footer-note,
+.hospital-head p,
+.hospital-status,
+.section-head p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(37,99,235,0.12);
+    border-radius: 999px;
+    padding: 12px 16px;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 16px 34px rgba(15,23,42,0.08);
+}
+
+.badge-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 0 8px rgba(16,185,129,0.12);
+    animation: livePulse 1.8s infinite;
+}
+
+.error-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(254,226,226,0.88);
+    color: #b91c1c;
+    border: 1px solid rgba(220,38,38,0.16);
+    padding: 14px 16px;
+    border-radius: 16px;
+    margin-bottom: 18px;
+}
+
+.error-emoji {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.assessment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-section {
+    padding: 22px;
+    border-radius: 26px;
+}
+
+.glass-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0.56));
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 16px 38px rgba(15,23,42,0.06);
+    backdrop-filter: blur(14px);
+}
+
+.section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.section-head h3 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(6,182,212,0.14));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    border: 1px solid rgba(37,99,235,0.08);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 9px;
+    color: #334155;
+    letter-spacing: 0.02em;
+}
+
+input[type="number"],
+select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(148,163,184,0.22);
+    background: rgba(255,255,255,0.9);
+    color: #0f172a;
+    outline: none;
+    font-size: 14px;
+    transition: 0.25s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+input[type="number"]:focus,
+select:focus {
+    border-color: rgba(37,99,235,0.32);
+    box-shadow: 0 0 0 5px rgba(37,99,235,0.08);
+    transform: translateY(-1px);
+}
+
+.symptom-block + .symptom-block {
+    margin-top: 14px;
+}
+
+.symptom-group-title {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.symptom-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(148,163,184,0.18);
+    cursor: pointer;
+    transition: 0.24s ease;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(15,23,42,0.04);
+}
+
+.symptom-pill:hover {
+    transform: translateY(-2px);
+    border-color: rgba(37,99,235,0.22);
+    box-shadow: 0 18px 32px rgba(37,99,235,0.08);
+}
+
+.symptom-pill input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--accent-1);
+    flex-shrink: 0;
+}
+
+.symptom-pill span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.4;
+}
+
+.submit-btn {
+    margin-top: 8px;
+    width: 100%;
+    min-height: 62px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    color: white;
+    font-size: 17px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 24px 42px rgba(37,99,235,0.22);
+    transition: 0.25s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 48px rgba(37,99,235,0.28);
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+.analyzing-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.62);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 20px;
+}
+
+.analyzing-card {
+    width: 100%;
+    max-width: 440px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(255,255,255,0.56);
+    border-radius: 30px;
+    box-shadow: 0 34px 80px rgba(15,23,42,0.22);
+    padding: 34px 28px;
+    text-align: center;
+    animation: fadeUp 0.35s ease;
+}
+
+.scanner-wrap {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scanner-core {
+    width: 78px;
+    height: 78px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    box-shadow: 0 18px 34px rgba(37,99,235,0.24);
+    z-index: 2;
+}
+
+.scanner-ring {
+    position: absolute;
+    border-radius: 999px;
+    border: 1px solid rgba(37,99,235,0.22);
+    animation: ripple 2.2s infinite;
+}
+
+.ring-1 { width: 92px; height: 92px; }
+.ring-2 { width: 112px; height: 112px; animation-delay: 0.4s; }
+.ring-3 { width: 132px; height: 132px; animation-delay: 0.8s; }
+
+.analyzing-card h3 {
+    margin: 0 0 10px;
+    font-size: 28px;
+    color: #0f172a;
+}
+
+.analyzing-card p {
+    margin: 0 0 18px;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+.analyzing-steps {
+    text-align: left;
+}
+
+.step-line {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(148,163,184,0.18);
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.step-line span {
+    display: block;
+    width: 45%;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    animation: loadingBar 1.4s ease-in-out infinite;
+}
+
+.step-texts {
+    display: grid;
+    gap: 8px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.66);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}
+
+.popup-card {
+    position: relative;
+    width: 100%;
+    max-width: 980px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background:
+        radial-gradient(circle at top right, rgba(37,99,235,0.08), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(6,182,212,0.07), transparent 18%),
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+    border: 1px solid rgba(255,255,255,0.62);
+    border-radius: 34px;
+    box-shadow: 0 40px 100px rgba(15,23,42,0.28);
+    padding: 30px;
+    animation: scaleIn 0.3s ease;
+}
+
+.popup-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(15,23,42,0.06);
+    font-size: 26px;
+    color: #0f172a;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.popup-close:hover {
+    background: rgba(15,23,42,0.12);
+    transform: rotate(90deg);
+}
+
+.popup-top {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.popup-main-icon {
+    width: 86px;
+    height: 86px;
+    margin: 0 auto 14px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 24px 40px rgba(37,99,235,0.22);
+}
+
+.popup-top h2 {
+    margin: 0 0 8px;
+    font-size: 38px;
+    line-height: 1.05;
+    color: #0f172a;
+}
+
+.popup-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.popup-stat {
+    background: rgba(248,250,252,0.9);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+}
+
+.popup-stat span {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.popup-stat strong {
+    font-size: 22px;
+    color: #0f172a;
+}
+
+.risk-high { color: #b91c1c !important; }
+.risk-moderate { color: #b45309 !important; }
+.risk-low { color: #15803d !important; }
+
+.popup-suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.popup-suggestion-card {
+    background: rgba(248,250,252,0.92);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 24px;
+    padding: 18px;
+}
+
+.popup-suggestion-card h4 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    color: #0f172a;
+}
+
+.popup-suggestion-card ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.popup-suggestion-card li {
+    margin-bottom: 8px;
+    line-height: 1.65;
+    color: #334155;
+    font-size: 14px;
+}
+
+.warning-card {
+    background: rgba(254,242,242,0.82);
+    border-color: rgba(220,38,38,0.14);
+}
+
+.hospital-panel {
+    background: linear-gradient(180deg, rgba(241,245,249,0.86), rgba(248,250,252,0.94));
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 26px;
+    padding: 20px;
+}
+
+.hospital-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.hospital-head h4 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.hospital-btn {
+    border: none;
+    border-radius: 16px;
+    padding: 12px 18px;
+    font-weight: 800;
+    font-size: 14px;
+    color: white;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    cursor: pointer;
+    box-shadow: 0 16px 28px rgba(37,99,235,0.18);
+}
+
+.hospital-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.hospital-item {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 18px;
+    padding: 16px;
+    display: grid;
+    gap: 8px;
+}
+
+.hospital-item strong {
+    font-size: 16px;
+    color: #0f172a;
+}
+
+.hospital-meta {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.hospital-link {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #0f172a;
+    background: rgba(37,99,235,0.08);
+    transition: 0.2s ease;
+}
+
+.hospital-link:hover {
+    background: rgba(37,99,235,0.14);
+}
+
+.popup-footer-note {
+    margin-top: 16px;
+    text-align: center;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(245,158,11,0.10);
+    border: 1px solid rgba(245,158,11,0.16);
+    color: #92400e;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes ripple {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.18); opacity: 0; }
+}
+
+@keyframes loadingBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(240%); }
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.96); opacity: 0.7; }
+    70% { transform: scale(1.08); opacity: 0; }
+    100% { transform: scale(1.08); opacity: 0; }
+}
+
+@keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.24); }
+    50% { box-shadow: 0 0 0 10px rgba(16,185,129,0.04); }
+}
+
+@keyframes floatOrb {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(18px); }
+}
+
+@media (max-width: 900px) {
+    .hero-strip {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+
+    .popup-stat-grid,
+    .popup-suggestion-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hospital-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 640px) {
+    .assessment-card {
+        padding: 20px;
+        border-radius: 24px;
+    }
+
+    .hero-copy h1,
+    .popup-top h2 {
+        font-size: 28px;
+    }
+
+    .form-row,
+    .symptom-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .popup-card {
+        padding: 22px 18px;
+        border-radius: 24px;
+    }
+
+    .analyzing-card {
+        padding: 26px 20px;
+        border-radius: 24px;
+    }
+}
+</style>
+
+<script>
+const assessmentForm = document.getElementById("assessmentForm");
+const analyzingOverlay = document.getElementById("analyzingOverlay");
+
+if (assessmentForm) {
+    assessmentForm.addEventListener("submit", function () {
+        if (analyzingOverlay) {
+            analyzingOverlay.style.display = "flex";
+        }
+    });
+}
+
+function closePopup() {
+    const popup = document.getElementById("resultPopup");
+    if (popup) {
+        popup.style.display = "none";
+    }
+}
+
+async function findNearbyHospitals() {
+    const status = document.getElementById("hospitalStatus");
+    const list = document.getElementById("hospitalList");
+
+    if (!status || !list) return;
+
+    status.textContent = "Getting your location and finding nearby hospitals...";
+    list.innerHTML = "";
+
+    if (!navigator.geolocation) {
+        status.textContent = "Geolocation is not supported in this browser.";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            try {
+                const response = await fetch("/nearby-hospitals", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ lat, lon })
+                });
+
+                const data = await response.json();
+
+                if (!data.success || !data.hospitals || data.hospitals.length === 0) {
+                    status.textContent = "No nearby hospitals found.";
+                    return;
+                }
+
+                status.textContent = "Nearby hospitals loaded successfully.";
+
+                data.hospitals.forEach(hospital => {
+                    const item = document.createElement("div");
+                    item.className = "hospital-item";
+
+                    item.innerHTML = `
+                        <strong>${hospital.name}</strong>
+                        <div class="hospital-meta">Distance: ${hospital.distance} km</div>
+                        <div class="hospital-meta">${hospital.address || "Nearby location"}</div>
+                        <a class="hospital-link" href="${hospital.maps_url}" target="_blank" rel="noopener noreferrer">
+                            📍 Open in Google Maps
+                        </a>
+                    `;
+
+                    list.appendChild(item);
+                });
+            } catch (error) {
+                status.textContent = "Unable to load nearby hospitals right now.";
+            }
+        },
+        function() {
+            status.textContent = "Location permission denied. Please allow location access.";
+        }
+    );
+}
+</script>
+
+{% endblock %}

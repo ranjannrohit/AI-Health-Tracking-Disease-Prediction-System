@@ -1,0 +1,17 @@
+{
+  "name": "HealthTrackk",
+  "short_name": "HealthTrackk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#1E3A8A",
+  "description": "AI-assisted health dashboard with records, vaccination tracking, symptom screening, and emergency tools.",
+  "icons": [
+    {
+      "src": "/static/healthtrackk-logo.png",
+      "sizes": "768x768",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

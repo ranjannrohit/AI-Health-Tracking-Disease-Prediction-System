@@ -2,205 +2,763 @@
 {% block content %}
 
 <style>
-
 /* ===========================
    CHAT SECTION
 =========================== */
 
 .chat-section {
-    min-height: 90vh;
-    padding: 80px 20px;
+    min-height: calc(100vh - 140px);
+    padding: 20px 16px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    background:
+        radial-gradient(circle at top right, rgba(14,165,164,0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(37,99,235,0.08), transparent 30%);
 }
 
-/* Chat Container */
+.chat-shell {
+    width: 100%;
+    max-width: 1180px;
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.chat-sidebar {
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: calc(100vh - 180px);
+    min-height: 620px;
+    max-height: calc(100vh - 180px);
+    overflow: hidden;
+}
+
+.sidebar-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2563EB, #1E3A8A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 12px 24px rgba(37,99,235,0.20);
+    flex-shrink: 0;
+}
+
+.sidebar-head h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.sidebar-head p {
+    margin: 4px 0 0;
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.sidebar-scroll {
+    overflow-y: auto;
+    min-height: 0;
+    padding-right: 4px;
+}
+
+.sidebar-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.sidebar-card h4 {
+    margin-bottom: 10px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prompt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.prompt-btn {
+    width: 100%;
+    text-align: left;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.22s ease;
+    line-height: 1.5;
+}
+
+.prompt-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(37,99,235,0.35);
+    box-shadow: 0 10px 24px rgba(37,99,235,0.08);
+}
+
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-tag {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(37,99,235,0.08);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sidebar-note {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.6;
+    padding-top: 6px;
+}
+
+/* ===========================
+   CHAT CONTAINER
+=========================== */
 
 .chat-container {
     width: 100%;
-    max-width: 900px;
-    height: 650px;
+    height: calc(100vh - 180px);
+    min-height: 620px;
+    max-height: calc(100vh - 180px);
+    min-width: 0;
     background: var(--card);
-    border-radius: 20px;
+    border-radius: 24px;
     border: 1px solid var(--border);
-    box-shadow: 0 30px 70px rgba(0,0,0,0.15);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.12);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-/* Header */
+/* HEADER */
 
 .chat-header {
-    padding: 20px 30px;
+    padding: 20px 24px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: space-between;
+    gap: 16px;
+    background: linear-gradient(180deg, rgba(37,99,235,0.03), transparent);
+    flex-shrink: 0;
+}
+
+.chat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
 }
 
 .chat-header-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     background: linear-gradient(135deg,#0EA5A4,#0F766E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 22px rgba(14,165,164,0.25);
+    flex-shrink: 0;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.chat-header small {
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: rgba(34,197,94,0.10);
+    color: #15803D;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22C55E;
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.45);
+    animation: pulseDot 2.5s infinite;
+}
+
+@keyframes pulseDot {
+    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.45); }
+    70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+/* BODY */
+
+.chat-body {
+    flex: 1;
+    min-height: 0;
+    padding: 24px 22px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg);
+    scroll-behavior: smooth;
+}
+
+.empty-state {
+    min-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.chat-header-icon i {
-    color: white;
-}
-
-/* Body */
-
-.chat-body {
-    flex: 1;
+.empty-card {
+    max-width: 560px;
+    text-align: center;
     padding: 30px;
-    overflow-y: auto;
-    background: var(--bg);
-    scroll-behavior: smooth;
+    border-radius: 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.05);
 }
 
-/* Messages */
+.empty-card .empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg,#2563EB,#0EA5A4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 14px 28px rgba(37,99,235,0.16);
+}
+
+.empty-card h3 {
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.empty-card p {
+    color: var(--text-light);
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+/* MESSAGES */
+
+.message-row {
+    display: flex;
+    margin-bottom: 18px;
+    width: 100%;
+}
+
+.message-row.user-row {
+    justify-content: flex-end;
+}
+
+.message-row.bot-row {
+    justify-content: flex-start;
+}
 
 .message {
-    margin-bottom: 18px;
-    max-width: 75%;
-    padding: 14px 18px;
-    border-radius: 16px;
+    max-width: min(76%, 720px);
+    padding: 14px 16px;
+    border-radius: 18px;
     font-size: 15px;
     display: flex;
     gap: 10px;
     align-items: flex-start;
+    line-height: 1.65;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    min-width: 0;
 }
 
 .user {
-    margin-left: auto;
     background: linear-gradient(135deg,#2563EB,#1E40AF);
     color: white;
+    border-bottom-right-radius: 8px;
 }
 
 .bot {
     background: var(--card);
     border: 1px solid var(--border);
+    border-bottom-left-radius: 8px;
 }
 
-.message i {
-    width: 18px;
-    height: 18px;
-}
-
-/* Typing cursor */
-
-.cursor {
-    display: inline-block;
-    width: 8px;
-    height: 16px;
-    background: #0EA5A4;
-    margin-left: 4px;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
-}
-
-/* Input */
-
-.chat-form {
-    border-top: 1px solid var(--border);
-    padding: 20px;
-    background: var(--card);
-}
-
-.chat-input-wrapper {
-    display: flex;
-    gap: 10px;
-}
-
-.chat-input {
-    flex: 1;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-}
-
-.voice-btn, .send-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
+.message-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.voice-btn {
+.message-text {
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.message-text p {
+    margin: 0;
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    height: 18px;
+}
+
+.typing-dots span {
+    width: 7px;
+    height: 7px;
     background: #0EA5A4;
+    border-radius: 50%;
+    opacity: 0.35;
+    animation: bounceDot 1.2s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounceDot {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.35;
+    }
+    40% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+/* INPUT AREA */
+
+.chat-form {
+    border-top: 1px solid var(--border);
+    padding: 18px 20px 20px;
+    background: var(--card);
+    flex-shrink: 0;
+}
+
+.chat-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.chat-tools-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.chat-tools-note {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.upload-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-light);
+    background: var(--bg);
+    cursor: pointer;
+}
+
+.image-preview {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+}
+
+.image-preview span {
+    font-size: 13px;
+    color: var(--text-light);
+    min-width: 0;
+    word-break: break-word;
+}
+
+.image-preview button {
+    border: none;
+    background: transparent;
+    color: #DC2626;
+    cursor: pointer;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input {
+    flex: 1;
+    min-width: 0;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    font-size: 15px;
+}
+
+.chat-input:focus {
+    border-color: rgba(37,99,235,0.4);
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+}
+
+.icon-btn,
+.send-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.22s ease;
+    flex-shrink: 0;
+}
+
+.icon-btn {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.icon-btn:hover,
+.send-btn:hover {
+    transform: translateY(-1px);
+}
+
+.voice-btn.is-listening {
+    background: #DC2626;
     color: white;
+    border-color: #DC2626;
+    box-shadow: 0 10px 24px rgba(220,38,38,0.18);
 }
 
 .send-btn {
-    background: #2563EB;
+    background: linear-gradient(135deg,#2563EB,#1E40AF);
     color: white;
+    box-shadow: 0 14px 26px rgba(37,99,235,0.18);
 }
 
-.voice-btn:hover,
-.send-btn:hover {
-    transform: translateY(-2px);
+.chat-disclaimer {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.5;
 }
 
+/* RESPONSIVE */
+
+@media (max-width: 1024px) {
+    .chat-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-sidebar {
+        order: 2;
+        height: auto;
+        min-height: auto;
+        max-height: none;
+    }
+
+    .chat-sidebar .sidebar-scroll {
+        overflow: visible;
+    }
+
+    .chat-container {
+        order: 1;
+        height: calc(100vh - 170px);
+        min-height: 620px;
+        max-height: calc(100vh - 170px);
+    }
+}
+
+@media (max-width: 700px) {
+    .chat-section {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .chat-container {
+        height: calc(100vh - 110px);
+        min-height: calc(100vh - 110px);
+        max-height: calc(100vh - 110px);
+        border-radius: 18px;
+    }
+
+    .chat-header {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .chat-header h3 {
+        font-size: 18px;
+    }
+
+    .chat-body {
+        padding: 18px 14px;
+    }
+
+    .message {
+        max-width: 92%;
+        font-size: 14px;
+    }
+
+    .chat-form {
+        padding: 14px;
+    }
+
+    .chat-input-wrapper {
+        gap: 8px;
+    }
+
+    .icon-btn,
+    .send-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .chat-input {
+        padding: 14px;
+    }
+}
 </style>
 
 <div class="chat-section">
+    <div class="chat-shell">
 
-<div class="chat-container">
+        <aside class="chat-sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-icon">
+                    <i data-lucide="shield-plus"></i>
+                </div>
+                <div>
+                    <h3>HealthTrackk AI </h3>
+                    <p>Safer guidance, cleaner answers</p>
+                </div>
+            </div>
 
-    <div class="chat-header">
-        <div class="chat-header-icon">
-            <i data-lucide="bot"></i>
-        </div>
-        <div>
-            <h3 style="margin:0;">AI Health Assistant</h3>
-            <small style="color:var(--text-light);">
-                Real-time Medical Intelligence
-            </small>
+            <div class="sidebar-scroll">
+                <div class="sidebar-card">
+                    <h4>
+                        <i data-lucide="sparkles"></i>
+                        Suggested prompts
+                    </h4>
+                    <div class="prompt-list">
+                        <button class="prompt-btn" type="button" onclick="usePrompt('What are the warning signs of low blood sugar?')">
+                            What are the warning signs of low blood sugar?
+                        </button>
+                        <button class="prompt-btn" type="button" onclick="usePrompt('I have fever and body pain. What should I monitor?')">
+                            I have fever and body pain. What should I monitor?
+                        </button>
+                        <button class="prompt-btn" type="button" onclick="usePrompt('What symptoms mean I should seek urgent care immediately?')">
+                            What symptoms mean I should seek urgent care immediately?
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h4>
+                        <i data-lucide="activity"></i>
+                        Use it for
+                    </h4>
+                    <div class="quick-tags">
+                        <span class="quick-tag">Symptoms</span>
+                        <span class="quick-tag">Precautions</span>
+                        <span class="quick-tag">Diet basics</span>
+                        <span class="quick-tag">Emergency signs</span>
+                        <span class="quick-tag">General guidance</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h4>
+                        <i data-lucide="shield-alert"></i>
+                        Safety note
+                    </h4>
+                    <p class="sidebar-note" style="margin-top:0;">
+                        This assistant is for support and screening guidance. It does not replace a doctor or emergency care.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="chat-container">
+
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="chat-header-icon">
+                        <i data-lucide="bot"></i>
+                    </div>
+                    <div>
+                        <h3>AI Health Assistant</h3>
+                        <small>Real-time medical guidance with safer responses</small>
+                    </div>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+
+            <div class="chat-body" id="chatBody">
+                {% if chats and chats|length > 0 %}
+                    {% for chat in chats %}
+                        <div class="message-row user-row">
+                            <div class="message user">
+                                <div class="message-icon">
+                                    <i data-lucide="user-round"></i>
+                                </div>
+                                <div class="message-text">{{ chat[0] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="message-row bot-row">
+                            <div class="message bot">
+                                <div class="message-icon">
+                                    <i data-lucide="bot"></i>
+                                </div>
+                                <div class="message-text">{{ chat[1] }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-card">
+                            <div class="empty-icon">
+                                <i data-lucide="stethoscope"></i>
+                            </div>
+                            <h3>Ask anything health-related</h3>
+                            <p>
+                                Ask about symptoms, precautions, diet basics, warning signs, or when to seek urgent help.
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <form id="chatForm" class="chat-form">
+                <div class="chat-tools">
+                    <div class="chat-tools-left">
+                        <label class="upload-chip" for="imageInput">
+                            <i data-lucide="image-plus"></i>
+                            <span>Attach image</span>
+                        </label>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <span class="chat-tools-note">Voice is enabled. Image upload UI is ready for backend integration.</span>
+                    </div>
+                </div>
+
+                <div class="image-preview" id="imagePreview">
+                    <span id="imagePreviewName"></span>
+                    <button type="button" onclick="clearImagePreview()">Remove</button>
+                </div>
+
+                <div class="chat-input-wrapper">
+                    <input
+                        type="text"
+                        id="chatInput"
+                        name="message"
+                        placeholder="Ask a health-related question..."
+                        required
+                        class="chat-input"
+                    >
+
+                    <button type="button" id="voiceBtn" class="icon-btn voice-btn" title="Voice input">
+                        <i data-lucide="mic"></i>
+                    </button>
+
+                    <button type="submit" class="send-btn" title="Send message">
+                        <i data-lucide="send-horizontal"></i>
+                    </button>
+                </div>
+
+                <div class="chat-disclaimer">
+                    For severe symptoms like chest pain, breathing difficulty, stroke signs, or unconsciousness, use emergency help immediately.
+                </div>
+            </form>
+
         </div>
     </div>
-
-    <div class="chat-body" id="chatBody"></div>
-
-    <form id="chatForm" class="chat-form">
-
-        <div class="chat-input-wrapper">
-
-            <input type="text"
-                   id="chatInput"
-                   name="message"
-                   placeholder="Ask health related question..."
-                   required
-                   class="chat-input">
-
-            <button type="button" id="voiceBtn" class="voice-btn">
-                <i data-lucide="mic"></i>
-            </button>
-
-            <button type="submit" class="send-btn">
-                <i data-lucide="send"></i>
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
-
 </div>
 
 <script>
@@ -209,71 +767,109 @@ lucide.createIcons();
 const form = document.getElementById("chatForm");
 const input = document.getElementById("chatInput");
 const chatBody = document.getElementById("chatBody");
+const emptyState = document.getElementById("emptyState");
+const voiceBtn = document.getElementById("voiceBtn");
+const imageInput = document.getElementById("imageInput");
+const imagePreview = document.getElementById("imagePreview");
+const imagePreviewName = document.getElementById("imagePreviewName");
 
-/* Auto scroll */
+let currentTypingBubble = null;
+
+function refreshIcons() {
+    lucide.createIcons();
+}
+
 function scrollBottom() {
     chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-/* Add message */
-function addMessage(text, type) {
+function removeEmptyState() {
+    const empty = document.getElementById("emptyState");
+    if (empty) empty.remove();
+}
+
+function usePrompt(text) {
+    input.value = text;
+    input.focus();
+}
+
+function createMessageRow(type) {
+    const row = document.createElement("div");
+    row.classList.add("message-row", type === "user" ? "user-row" : "bot-row");
 
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("message", type);
 
+    const iconWrap = document.createElement("div");
+    iconWrap.classList.add("message-icon");
+
     const icon = document.createElement("i");
-    icon.setAttribute("data-lucide", type === "user" ? "user" : "bot");
+    icon.setAttribute("data-lucide", type === "user" ? "user-round" : "bot");
 
     const textDiv = document.createElement("div");
-    textDiv.innerHTML = text;
+    textDiv.classList.add("message-text");
 
-    msgDiv.appendChild(icon);
+    iconWrap.appendChild(icon);
+    msgDiv.appendChild(iconWrap);
     msgDiv.appendChild(textDiv);
+    row.appendChild(msgDiv);
 
-    chatBody.appendChild(msgDiv);
-
-    lucide.createIcons();
+    chatBody.appendChild(row);
+    refreshIcons();
     scrollBottom();
+
+    return textDiv;
 }
 
-/* GPT Style Typing */
+function addMessage(text, type) {
+    removeEmptyState();
+    const textDiv = createMessageRow(type);
+    textDiv.textContent = text;
+}
+
+function showTypingIndicator() {
+    removeEmptyState();
+    const textDiv = createMessageRow("bot");
+    textDiv.innerHTML = `
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    currentTypingBubble = textDiv;
+}
+
+function removeTypingIndicator() {
+    if (currentTypingBubble) {
+        const row = currentTypingBubble.closest(".message-row");
+        if (row) row.remove();
+        currentTypingBubble = null;
+    }
+}
+
 function typeBotMessage(text) {
-
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", "bot");
-
-    const icon = document.createElement("i");
-    icon.setAttribute("data-lucide", "bot");
-
-    const textDiv = document.createElement("div");
-
-    msgDiv.appendChild(icon);
-    msgDiv.appendChild(textDiv);
-
-    chatBody.appendChild(msgDiv);
-
-    lucide.createIcons();
+    removeTypingIndicator();
+    const textDiv = createMessageRow("bot");
 
     let i = 0;
+    const safeText = text || "Sorry, I could not generate a response right now.";
 
     function type() {
-        if (i < text.length) {
-            textDiv.innerHTML = text.substring(0, i + 1) +
-                '<span class="cursor"></span>';
+        if (i < safeText.length) {
+            textDiv.textContent = safeText.substring(0, i + 1);
             i++;
             scrollBottom();
-            setTimeout(type, 15);
+            setTimeout(type, 10);
         } else {
-            textDiv.innerHTML = text;
+            textDiv.textContent = safeText;
         }
     }
 
     type();
 }
 
-/* AJAX submit */
 form.addEventListener("submit", function(e) {
-
     e.preventDefault();
 
     const message = input.value.trim();
@@ -281,6 +877,7 @@ form.addEventListener("submit", function(e) {
 
     addMessage(message, "user");
     input.value = "";
+    showTypingIndicator();
 
     fetch("/chatbot", {
         method: "POST",
@@ -291,27 +888,73 @@ form.addEventListener("submit", function(e) {
     })
     .then(response => response.json())
     .then(data => {
-        typeBotMessage(data.bot);
+        if (data.bot && data.bot.trim() !== "") {
+            typeBotMessage(data.bot);
+        } else {
+            typeBotMessage("Sorry, I could not generate a response right now.");
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        removeTypingIndicator();
+        typeBotMessage("Something went wrong. Please try again.");
     });
-
 });
 
-/* Voice input */
-if ('webkitSpeechRecognition' in window) {
+input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        form.dispatchEvent(new Event("submit"));
+    }
+});
 
+if ("webkitSpeechRecognition" in window) {
     const recognition = new webkitSpeechRecognition();
     recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-    document.getElementById("voiceBtn")
-        .addEventListener("click", () => {
-            recognition.start();
-        });
+    voiceBtn.addEventListener("click", () => {
+        recognition.start();
+        voiceBtn.classList.add("is-listening");
+    });
 
     recognition.onresult = function(event) {
         input.value = event.results[0][0].transcript;
+        voiceBtn.classList.remove("is-listening");
     };
+
+    recognition.onerror = function() {
+        voiceBtn.classList.remove("is-listening");
+    };
+
+    recognition.onend = function() {
+        voiceBtn.classList.remove("is-listening");
+    };
+} else {
+    voiceBtn.disabled = true;
+    voiceBtn.title = "Voice input not supported on this browser";
 }
 
+imageInput.addEventListener("change", function() {
+    const file = imageInput.files[0];
+
+    if (!file) {
+        clearImagePreview();
+        return;
+    }
+
+    imagePreview.style.display = "flex";
+    imagePreviewName.textContent = file.name;
+});
+
+function clearImagePreview() {
+    imageInput.value = "";
+    imagePreview.style.display = "none";
+    imagePreviewName.textContent = "";
+}
+
+scrollBottom();
 </script>
 
 {% endblock %}

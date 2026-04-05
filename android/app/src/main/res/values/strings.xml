@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HealthTrackk</string>
+    <string name="title_activity_main">HealthTrackk</string>
+    <string name="package_name">com.rohit.healthtrackk</string>
+    <string name="custom_url_scheme">com.rohit.healthtrackk</string>
+</resources>

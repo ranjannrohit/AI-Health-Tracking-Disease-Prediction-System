@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>HealthTrackk Mobile</title>
+  <link rel="icon" type="image/png" href="../static/healthtrackk-logo.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <img class="logo" src="../static/healthtrackk-logo.png" alt="HealthTrackk logo">
+      <p class="eyebrow">Android Shell</p>
+      <h1>HealthTrackk</h1>
+      <p id="statusText" class="status">
+        Preparing the mobile app shell.
+      </p>
+      <div id="actionArea" class="actions"></div>
+      <div class="note">
+        <strong>Play Store note:</strong> to ship this as a real app, point the shell to your deployed HTTPS HealthTrackk site or API-backed frontend before release.
+      </div>
+    </section>
+  </main>
+
+  <script src="./mobile-config.js"></script>
+  <script>
+    const configuredUrl = (window.HEALTHTRACKK_WEB_URL || "").trim();
+    const statusText = document.getElementById("statusText");
+    const actionArea = document.getElementById("actionArea");
+
+    const validRemoteUrl = configuredUrl &&
+      configuredUrl !== "https://your-healthtrackk-domain.example" &&
+      configuredUrl.startsWith("https://");
+
+    if (validRemoteUrl) {
+      statusText.textContent = "Opening the hosted HealthTrackk app...";
+      window.location.replace(configuredUrl);
+    } else {
+      statusText.textContent = "No production web URL is configured yet. Set one in www/mobile-config.js before building your Play Store release.";
+      actionArea.innerHTML = `
+        <a class="button" href="https://capacitorjs.com/docs/android" target="_blank" rel="noreferrer">Capacitor Android Guide</a>
+      `;
+    }
+  </script>
+</body>
+</html>
