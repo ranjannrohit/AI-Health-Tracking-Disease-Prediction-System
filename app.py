@@ -254,11 +254,18 @@ init_app_database()
 # Load ML Models
 # ============================
 
-diabetes_model = joblib.load(os.path.join(BASE_DIR, "models", "diabetes_model.pkl"))
-heart_model = joblib.load(os.path.join(BASE_DIR, "models", "heart_model.pkl"))
-stroke_model = joblib.load(os.path.join(BASE_DIR, "models", "stroke_model.pkl"))
-chatbot_model = joblib.load(os.path.join(BASE_DIR, "models", "chatbot_intent_model.pkl"))
-vectorizer = joblib.load(os.path.join(BASE_DIR, "models", "chatbot_vectorizer.pkl"))
+def safe_load(path):
+    try:
+        return joblib.load(path)
+    except Exception as e:
+        print("MODEL LOAD ERROR:", e)
+        return None
+
+diabetes_model = safe_load(os.path.join(BASE_DIR, "models", "diabetes_model.pkl"))
+heart_model = safe_load(os.path.join(BASE_DIR, "models", "heart_model.pkl"))
+stroke_model = safe_load(os.path.join(BASE_DIR, "models", "stroke_model.pkl"))
+chatbot_model = safe_load(os.path.join(BASE_DIR, "models", "chatbot_intent_model.pkl"))
+vectorizer = safe_load(os.path.join(BASE_DIR, "models", "chatbot_vectorizer.pkl"))
 
 
 # ============================
