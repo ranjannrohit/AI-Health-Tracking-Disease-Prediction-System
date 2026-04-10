@@ -1,5 +1,8 @@
-Flask
-gunicorn
+Flask==2.3.2
+gunicorn==21.2.0
 requests
-google-genai
-openai
+python-dotenv
+Flask-Babel
+google-generativeai
+joblib
+scikit-learn
