@@ -1,3 +1,5 @@
+from http import client
+
 from translations_dict import TEXT
 
 from flask import (
@@ -44,10 +46,10 @@ app.config["BABEL_SUPPORTED_LOCALES"] = ["en", "hi", "mr"]
 
 
 
-from google import genai
+import google.generativeai as genai
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+genai.configure(api_key=GEMINI_API_KEY)
 
 
 # ============================
