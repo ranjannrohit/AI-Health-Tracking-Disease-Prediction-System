@@ -41,10 +41,11 @@ body {
 }
 
 .logo {
-  width: 140px;
-  height: 140px;
+  width: 168px;
+  height: 168px;
   object-fit: contain;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 18px 28px rgba(29, 155, 240, 0.16));
 }
 
 .eyebrow {
@@ -58,7 +59,8 @@ body {
 
 h1 {
   margin: 0 0 12px;
-  font-size: 42px;
+  font-size: 46px;
+  letter-spacing: -0.03em;
 }
 
 .status {
@@ -94,4 +96,20 @@ h1 {
   color: var(--muted);
   line-height: 1.6;
   text-align: left;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 28px 22px;
+    border-radius: 24px;
+  }
+
+  .logo {
+    width: 144px;
+    height: 144px;
+  }
+
+  h1 {
+    font-size: 38px;
+  }
 }

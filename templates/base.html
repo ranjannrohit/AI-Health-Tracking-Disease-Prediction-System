@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='healthtrackk-logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='healthtrackk-logo.png') }}">
 
     <script>
         if (localStorage.getItem("theme") === "dark") {
@@ -54,6 +55,7 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
@@ -83,19 +85,19 @@
         .logo {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             text-decoration: none;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.4px;
         }
 
         .logo img {
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+            border-radius: 14px;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
         }
 
         .logo span {
@@ -111,6 +113,23 @@
             display: flex;
             align-items: center;
             gap: 25px;
+        }
+
+        .nav-menu-btn {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-overlay {
+            display: none;
         }
 
         .nav-links a {
@@ -464,12 +483,124 @@
         /* MOBILE */
 
         @media (max-width: 900px) {
+            body.nav-open {
+                overflow: hidden;
+            }
+
+            nav {
+                padding: 10px 0;
+            }
+
+            .nav-inner {
+                width: 100%;
+                gap: 12px;
+            }
+
+            .logo {
+                gap: 10px;
+                font-size: 19px;
+                min-width: 0;
+            }
+
+            .logo img {
+                width: 50px;
+                height: 50px;
+                border-radius: 10px;
+            }
+
+            .logo span {
+                max-width: 172px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .nav-menu-btn {
+                display: inline-flex;
+                margin-left: auto;
+                flex-shrink: 0;
+            }
+
+            .nav-overlay {
+                position: fixed;
+                inset: 0;
+                display: block;
+                background: rgba(15, 23, 42, 0.45);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+                z-index: 999;
+            }
+
+            body.nav-open .nav-overlay {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
             .nav-links {
-                gap: 16px;
+                position: fixed;
+                top: 0;
+                right: 0;
+                z-index: 1001;
+                width: min(82vw, 320px);
+                height: 100vh;
+                padding: 76px 22px 24px;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                background: var(--card);
+                border-left: 1px solid var(--border);
+                box-shadow: -20px 0 50px rgba(15, 23, 42, 0.18);
+                transform: translateX(105%);
+                transition: transform 0.25s ease;
+            }
+
+            body.nav-open .nav-links {
+                transform: translateX(0);
+            }
+
+            .nav-links a,
+            .nav-links > span,
+            .theme-btn,
+            .lang-btn {
+                width: 100%;
+                min-height: 44px;
+                justify-content: flex-start;
+            }
+
+            .nav-links a {
+                padding: 10px 12px;
+                border-radius: 8px;
             }
 
             .nav-links a span {
+                display: inline;
+            }
+
+            .nav-links a.active::after {
                 display: none;
+            }
+
+            .nav-links a.active {
+                background: rgba(37, 99, 235, 0.10);
+            }
+
+            .nav-links a[href="/login"],
+            .nav-links a[href="/register"] {
+                padding: 10px 12px;
+            }
+
+            .theme-btn {
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 10px 12px;
+                background: transparent;
+            }
+
+            .language-dropdown,
+            .lang-menu {
+                width: 100%;
             }
 
             .trust-inner {
@@ -496,6 +627,10 @@
             <img src="{{ url_for('static', filename='healthtrackk-logo.png') }}" alt="HealthTrackk logo">
             <span>HealthTrackk</span>
         </a>
+
+        <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="Open navigation menu" aria-expanded="false">
+            <i data-lucide="menu"></i>
+        </button>
 
         <div class="nav-links">
 
@@ -551,6 +686,7 @@
         </div>
     </div>
 </nav>
+<div id="navOverlay" class="nav-overlay"></div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -599,6 +735,44 @@
 
 <script>
 lucide.createIcons();
+
+const navMenuBtn = document.getElementById("navMenuBtn");
+const navOverlay = document.getElementById("navOverlay");
+const navLinks = document.querySelector(".nav-links");
+
+function closeNavMenu() {
+    document.body.classList.remove("nav-open");
+    if (navMenuBtn) {
+        navMenuBtn.setAttribute("aria-expanded", "false");
+        navMenuBtn.setAttribute("aria-label", "Open navigation menu");
+    }
+}
+
+if (navMenuBtn) {
+    navMenuBtn.addEventListener("click", function () {
+        const isOpen = document.body.classList.toggle("nav-open");
+        navMenuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        navMenuBtn.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+    });
+}
+
+if (navOverlay) {
+    navOverlay.addEventListener("click", closeNavMenu);
+}
+
+if (navLinks) {
+    navLinks.addEventListener("click", function (event) {
+        if (event.target.closest("a")) {
+            closeNavMenu();
+        }
+    });
+}
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeNavMenu();
+    }
+});
 
 if (localStorage.getItem("theme") === "dark") {
     document.documentElement.classList.add("dark");

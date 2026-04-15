@@ -2928,7 +2928,10 @@ html {
         <div class="prog-name">7-Day Beginner Yoga</div>
         <div class="prog-sub">Start your yoga journey with gentle, guided daily sessions.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 20 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="1" onclick="enrollProgram(1)">Enroll Now</button>
+        <button onclick="markComplete(1, 1)">
+  Mark Day 1 Complete
+</button>
       </div>
 
       <div class="prog-card">
@@ -2937,7 +2940,7 @@ html {
         <div class="prog-name">14-Day Flexibility Reset</div>
         <div class="prog-sub">Deep stretch and mobility training to unlock your body.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 30 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Intermediate</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="2" onclick="enrollProgram(2)">Enroll Now</button>
       </div>
 
       <div class="prog-card">
@@ -2946,7 +2949,7 @@ html {
         <div class="prog-name">Heart Wellness Routine</div>
         <div class="prog-sub">Cardio-friendly yoga to support heart health daily.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 25 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> All levels</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="3" onclick="enrollProgram(3)">Enroll Now</button>
       </div>
 
       <div class="prog-card">
@@ -2955,7 +2958,7 @@ html {
         <div class="prog-name">Stress Relief Flow</div>
         <div class="prog-sub">Breathwork + restorative yoga for deep mental relief.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 15 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="4" onclick="enrollProgram(4)">Enroll Now</button>
       </div>
 
       <div class="prog-card">
@@ -2964,7 +2967,7 @@ html {
         <div class="prog-name">Desk Worker Stretch Plan</div>
         <div class="prog-sub">Targeted routines for office professionals and remote workers.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 10 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> Beginner</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="5" onclick="enrollProgram(5)">Enroll Now</button>
       </div>
 
       <div class="prog-card">
@@ -2973,8 +2976,9 @@ html {
         <div class="prog-name">Deep Sleep Program</div>
         <div class="prog-sub">Evening routines and meditations for restful, deep sleep.</div>
         <div class="prog-meta"><div class="prog-meta-item"><i data-lucide="clock" style="width:13px;height:13px"></i> 20 min/day</div><div class="prog-meta-item"><i data-lucide="bar-chart" style="width:13px;height:13px"></i> All levels</div></div>
-        <button class="prog-enroll">Enroll Now</button>
+        <button class="prog-enroll" data-program="6" onclick="enrollProgram(6)">Enroll Now</button>
       </div>
+      <div id="progressSummary" style="margin-bottom:1.5rem"></div>
     </div>
   </section>
 
@@ -3257,6 +3261,209 @@ closePoseModal.addEventListener("click", closeModal);
 poseModal.addEventListener("click", function(e) {
   if (e.target === poseModal) closeModal();
 });
+
+async function loadFityogaDashboard() {
+  try {
+    const res  = await fetch("/fityoga-dashboard-data");
+    const json = await res.json();
+    if (!json.success) return;
+    const d = json.data;
+
+    const statVals = document.querySelectorAll(".pstat-val");
+    if (statVals[0]) statVals[0].textContent = d.yoga_sessions;
+    if (statVals[1]) statVals[1].textContent = d.active_days;
+    if (statVals[2]) statVals[2].textContent = d.avg_score;
+
+    const streakEl = document.querySelector(".streak-val");
+    if (streakEl) streakEl.textContent = d.streak + " Days";
+
+    const miniVals = document.querySelectorAll(".activity-mini-val");
+    if (miniVals[0]) miniVals[0].textContent = d.yoga_sessions;
+    if (miniVals[1]) miniVals[1].textContent = d.enrolled_count;
+    if (miniVals[2]) miniVals[2].textContent = Math.max(0, d.yoga_sessions - d.enrolled_count);
+    if (miniVals[3]) miniVals[3].textContent = d.avg_score;
+
+    const barsEl = document.getElementById("weeklyBars");
+    if (barsEl && d.weekly && d.weekly.length) {
+      barsEl.innerHTML = "";
+      const barColors = ["#2563EB","#0EA5A4","#22C55E","#2563EB","#0EA5A4","#F59E0B","#2563EB"];
+      const maxCount  = Math.max.apply(null, d.weekly.map(function(w){ return w.count; }).concat([1]));
+      d.weekly.forEach(function(w, i) {
+        var wrap  = document.createElement("div");
+        wrap.className = "weekly-bar-wrap";
+        var bar = document.createElement("div");
+        bar.className = "weekly-bar";
+        var h = w.count > 0 ? Math.max(8, Math.round((w.count / maxCount) * 64)) : 4;
+        bar.style.height     = h + "px";
+        bar.style.background = barColors[i];
+        bar.style.opacity    = w.count > 0 ? "1" : "0.25";
+        var label = document.createElement("div");
+        label.className   = "weekly-day";
+        label.textContent = w.day;
+        wrap.appendChild(bar);
+        wrap.appendChild(label);
+        barsEl.appendChild(wrap);
+      });
+    }
+
+    var statCardVals = document.querySelectorAll(".stat-val");
+    if (statCardVals[0]) statCardVals[0].textContent = d.active_days;
+    if (statCardVals[1]) statCardVals[1].textContent = d.yoga_sessions;
+    if (statCardVals[2]) statCardVals[2].textContent = d.enrolled_count;
+
+    var heroVals = document.querySelectorAll(".hero-stat-val");
+    if (heroVals[0]) heroVals[0].innerHTML = d.yoga_sessions + '<span style="font-size:1rem;color:#64748B"> sessions</span>';
+    if (heroVals[1]) heroVals[1].innerHTML = d.active_days   + '<span style="font-size:1rem;color:#64748B"> days</span>';
+
+    renderProgressSummary(d.programs);
+
+    if (d.water_today > 0) {
+      filledCups = Math.min(Math.round(d.water_today / 0.25), 10);
+      renderWaterCups();
+      updateWater();
+    }
+
+  } catch (err) {
+    console.warn("Dashboard load error:", err);
+  }
+}
+
+function renderProgressSummary(programs) {
+  var container = document.getElementById("progressSummary");
+  if (!container) return;
+
+  if (!programs || programs.length === 0) {
+    container.innerHTML = '<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:1.2rem;text-align:center;color:#94A3B8;font-size:.88rem">No programmes enrolled yet — click <strong>Enroll Now</strong> below to start!</div>';
+    return;
+  }
+
+  container.innerHTML = programs.map(function(p) {
+    return '<div style="background:white;border:1px solid #E2E8F0;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:.75rem;box-shadow:0 2px 8px rgba(15,23,42,.06)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">'
+      + '<span style="font-weight:700;color:#0F172A;font-size:.92rem">' + p.program_name + '</span>'
+      + '<span style="font-size:.75rem;font-weight:600;color:#2563EB;background:#EFF6FF;padding:.2rem .65rem;border-radius:999px">' + p.percent + '%</span>'
+      + '</div>'
+      + '<div style="height:7px;background:#F1F5F9;border-radius:4px;overflow:hidden;margin-bottom:.5rem">'
+      + '<div style="height:100%;width:' + p.percent + '%;background:linear-gradient(90deg,#2563EB,#0EA5A4);border-radius:4px"></div>'
+      + '</div>'
+      + '<div style="font-size:.75rem;color:#94A3B8">' + p.completed_days + ' / ' + p.duration_days + ' days completed · started ' + p.start_date + '</div>'
+      + '</div>';
+  }).join("");
+}
+
+function renderWaterCups() {
+  var waterCupsEl = document.getElementById("waterCups");
+  if (!waterCupsEl) return;
+  waterCupsEl.innerHTML = "";
+  var total = 10;
+  for (var i = 0; i < total; i++) {
+    (function(index) {
+      var c = document.createElement("div");
+      c.className   = "water-cup";
+      c.textContent = index < filledCups ? "🥤" : "⬜";
+      c.onclick = function() {
+        var isAdding = (index + 1) > filledCups;
+        filledCups   = index + 1;
+        renderWaterCups();
+        updateWater();
+        if (isAdding) {
+          fetch("/log-water", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ amount: 0.25 })
+          }).catch(function(){});
+        }
+      };
+      waterCupsEl.appendChild(c);
+    })(i);
+  }
+}
+
+function enrollProgram(programId) {
+  fetch("/enroll-program", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ program_id: programId })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.success) {
+      document.querySelectorAll('[data-program="' + programId + '"]').forEach(function(btn) {
+        btn.textContent        = "✓ Enrolled";
+        btn.disabled           = true;
+        btn.style.background   = "#22C55E";
+      });
+      loadFityogaDashboard();
+      var ps = document.getElementById("progressSummary");
+      if (ps) ps.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      alert("Error: " + (data.error || "Could not enroll"));
+    }
+  })
+  .catch(function() {
+    alert("Network error. Please try again.");
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  renderWaterCups();
+  loadFityogaDashboard();
+});
+
+async function markComplete(programId, day) {
+    const res = await fetch("/mark-complete", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            program_id: programId,
+            day: day
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Day " + day + " completed ✅");
+
+        // 🔥 reload progress
+        loadProgress();
+    } else {
+        alert("Error: " + data.error);
+    }
+}
+
+async function loadProgress() {
+    const res = await fetch("/user-progress");
+    const data = await res.json();
+
+    if (!data.success) return;
+
+    let html = "<h3>Your Progress</h3>";
+
+    data.programs.forEach(p => {
+        html += `
+            <div style="margin-bottom:15px;">
+                <strong>${p.program_name}</strong><br>
+                ${p.completed_days}/${p.duration_days} days 
+                (${p.percent}%)
+                
+                <div style="background:#eee; height:8px; border-radius:10px;">
+                    <div style="
+                        width:${p.percent}%;
+                        background:#4CAF50;
+                        height:8px;
+                        border-radius:10px;">
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById("progressSummary").innerHTML = html;
+}
+loadProgress();
 </script>
+
+
 
 {% endblock %}

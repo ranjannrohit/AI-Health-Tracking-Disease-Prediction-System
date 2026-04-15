@@ -1,6 +1,8 @@
 import sqlite3
 import os
 
+from app import get_db
+
 # Ensure database folder exists
 if not os.path.exists("database"):
     os.makedirs("database")
@@ -83,7 +85,40 @@ CREATE TABLE IF NOT EXISTS chatbot_history (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 )
 """)
+def init_fityoga_tables():
+    conn = get_db()
 
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS yoga_programs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        description TEXT,
+        duration_days INTEGER
+    )
+    """)
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS enrolled_programs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        program_id INTEGER,
+        start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS user_progress (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        program_id INTEGER,
+        day_completed INTEGER,
+        completed INTEGER DEFAULT 1,
+        UNIQUE(user_id, program_id, day_completed)
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 conn.commit()
 conn.close()
 

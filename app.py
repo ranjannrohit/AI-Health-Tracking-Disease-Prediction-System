@@ -243,7 +243,53 @@ def init_app_database():
 
     conn.commit()
     conn.close()
+def init_fityoga_tables():
+    conn = get_db()
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS yoga_programs (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            name          TEXT    NOT NULL,
+            description   TEXT    NOT NULL,
+            duration_days INTEGER NOT NULL DEFAULT 7
+        );
 
+        CREATE TABLE IF NOT EXISTS enrolled_programs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            program_id  INTEGER NOT NULL,
+            start_date  TEXT    DEFAULT (date('now')),
+            UNIQUE(user_id, program_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS user_progress (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id       INTEGER NOT NULL,
+            program_id    INTEGER NOT NULL,
+            day_completed INTEGER NOT NULL,
+            completed     INTEGER NOT NULL DEFAULT 0,
+            UNIQUE(user_id, program_id, day_completed)
+        );
+    """)
+    conn.commit()
+
+def seed_fityoga_data():
+    conn = get_db()
+    if conn.execute("SELECT COUNT(*) FROM yoga_programs").fetchone()[0] > 0:
+        return
+
+    programs = [
+        (1, "7-Day Beginner Yoga",        "Start your yoga journey with gentle, guided daily sessions.",                     7),
+        (2, "14-Day Flexibility Reset",    "Deep stretch and mobility training to unlock your body.",                        14),
+        (3, "Heart Wellness Routine",      "Cardio-friendly yoga to support heart health daily.",                            30),
+        (4, "Stress Relief Flow",          "Breathwork + restorative yoga for deep mental relief.",                         10),
+        (5, "Desk Worker Stretch Plan",    "Targeted routines for office professionals and remote workers.",                 21),
+        (6, "Deep Sleep Program",          "Evening routines and meditations for restful, deep sleep.",                      7),
+    ]
+    conn.executemany(
+        "INSERT OR IGNORE INTO yoga_programs (id, name, description, duration_days) VALUES (?,?,?,?)",
+        programs
+    )
+    conn.commit()    
 
 def row_to_dict(row):
     return dict(row) if row is not None else {}
@@ -723,6 +769,84 @@ def fetch_overpass_hospitals(lat, lon):
     raise requests.exceptions.RequestException("; ".join(errors))
 
 
+import json as _json
+from datetime import date
+
+@app.route("/enroll-program", methods=["POST"])
+def enroll_program():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data       = request.get_json() or request.form
+    program_id = data.get("program_id")
+
+    if not program_id:
+        return jsonify({"success": False, "error": "program_id required"}), 400
+
+    user_id = session["user_id"]
+    conn    = get_db()
+
+    program = conn.execute(
+        "SELECT id, name FROM yoga_programs WHERE id = ?", (int(program_id),)
+    ).fetchone()
+    if not program:
+        return jsonify({"success": False, "error": "Program not found"}), 404
+
+    existing = conn.execute(
+        "SELECT id FROM enrolled_programs WHERE user_id = ? AND program_id = ?",
+        (user_id, int(program_id))
+    ).fetchone()
+
+    if existing:
+        return jsonify({"success": True, "message": f"Already enrolled in {program['name']}!", "program_id": int(program_id)})
+
+    conn.execute(
+        "INSERT INTO enrolled_programs (user_id, program_id) VALUES (?, ?)",
+        (user_id, int(program_id))
+    )
+    conn.commit()
+    return jsonify({"success": True, "message": f"Enrolled in {program['name']}!", "program_id": int(program_id)}), 201
+
+
+
+
+@app.route("/user-progress")
+def user_progress():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    user_id = session["user_id"]
+    conn    = get_db()
+
+    rows = conn.execute("""
+        SELECT ep.program_id,
+               yp.name          AS program_name,
+               yp.duration_days,
+               ep.start_date,
+               COUNT(CASE WHEN up.completed = 1 THEN 1 END) AS completed_days
+        FROM enrolled_programs ep
+        JOIN yoga_programs yp ON yp.id = ep.program_id
+        LEFT JOIN user_progress up
+               ON up.user_id = ep.user_id AND up.program_id = ep.program_id
+        WHERE ep.user_id = ?
+        GROUP BY ep.program_id
+    """, (user_id,)).fetchall()
+
+    programs = []
+    for r in rows:
+        total = r["duration_days"]
+        done  = r["completed_days"]
+        programs.append({
+            "program_id":     r["program_id"],
+            "program_name":   r["program_name"],
+            "start_date":     r["start_date"],
+            "duration_days":  total,
+            "completed_days": done,
+            "percent":        round(done / total * 100) if total else 0,
+        })
+
+    return jsonify({"success": True, "programs": programs})
+
 @app.route("/nearby-hospitals", methods=["POST"])
 def nearby_hospitals():
     try:
@@ -1174,7 +1298,247 @@ def verify_otp():
 
     return render_template("verify_otp.html")
 
+# ─────────────────────────────────────────────────────────────
+# FITYOGA DASHBOARD DATA ROUTES
+# ─────────────────────────────────────────────────────────────
 
+@app.route("/fityoga-dashboard-data")
+def fityoga_dashboard_data():
+    """Returns all dynamic data for the FitYoga dashboard."""
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    user_id = session["user_id"]
+    conn    = get_db()
+
+    # ── User basic info ───────────────────────────────────────
+    user = conn.execute(
+        "SELECT name, email FROM users WHERE user_id = ?", (user_id,)
+    ).fetchone()
+
+    # ── Activity stats ────────────────────────────────────────
+    # Count yoga sessions (enrolled programs progress entries)
+    yoga_sessions = conn.execute(
+        "SELECT COUNT(*) FROM user_progress WHERE user_id = ? AND completed = 1",
+        (user_id,)
+    ).fetchone()[0]
+
+    # Count enrolled programs
+    enrolled_count = conn.execute(
+        "SELECT COUNT(*) FROM enrolled_programs WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()[0]
+
+    # ── Streak calculation ────────────────────────────────────
+    # Look at completed days ordered by date to find current streak
+    streak = 0
+    try:
+        from datetime import date, timedelta
+        today = date.today()
+        streak = 0
+        check_date = today
+        for _ in range(365):
+            day_str = str(check_date)
+            done = conn.execute(
+                """SELECT COUNT(*) FROM user_progress
+                   WHERE user_id = ? AND completed = 1
+                   AND completed_at LIKE ?""",
+                (user_id, day_str + "%")
+            ).fetchone()[0]
+            if done > 0:
+                streak += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+    except Exception:
+        streak = 0
+
+    # ── Weekly activity (last 7 days) ─────────────────────────
+    from datetime import date, timedelta
+    today = date.today()
+    weekly = []
+    for i in range(6, -1, -1):
+        d = today - timedelta(days=i)
+        day_label = d.strftime("%a")
+        count = 0
+        try:
+            count = conn.execute(
+                """SELECT COUNT(*) FROM user_progress
+                   WHERE user_id = ? AND completed = 1
+                   AND completed_at LIKE ?""",
+                (user_id, str(d) + "%")
+            ).fetchone()[0]
+        except Exception:
+            count = 0
+        weekly.append({"day": day_label, "count": count})
+
+    # ── Enrolled programs with progress ───────────────────────
+    programs = []
+    try:
+        rows = conn.execute("""
+            SELECT ep.program_id,
+                   yp.name          AS program_name,
+                   yp.duration_days,
+                   ep.start_date,
+                   COUNT(CASE WHEN up.completed = 1 THEN 1 END) AS completed_days
+            FROM enrolled_programs ep
+            JOIN yoga_programs yp ON yp.id = ep.program_id
+            LEFT JOIN user_progress up
+                   ON up.user_id = ep.user_id AND up.program_id = ep.program_id
+            WHERE ep.user_id = ?
+            GROUP BY ep.program_id
+        """, (user_id,)).fetchall()
+
+        for r in rows:
+            total = r["duration_days"]
+            done  = r["completed_days"]
+            programs.append({
+                "program_id":     r["program_id"],
+                "program_name":   r["program_name"],
+                "start_date":     r["start_date"],
+                "duration_days":  total,
+                "completed_days": done,
+                "percent":        round(done / total * 100) if total else 0,
+            })
+    except Exception:
+        programs = []
+
+    # ── Water intake today ────────────────────────────────────
+    water_today = 0
+    try:
+        from datetime import date
+        water_row = conn.execute(
+            "SELECT SUM(intake) FROM water_tracking WHERE user_id = ? AND date = ?",
+            (user_id, str(date.today()))
+        ).fetchone()[0]
+        water_today = round(water_row or 0, 2)
+    except Exception:
+        water_today = 0
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "user_name":      user["name"] if user else session.get("user_name", "User"),
+            "yoga_sessions":  yoga_sessions,
+            "enrolled_count": enrolled_count,
+            "streak":         streak,
+            "avg_score":      round(min(5.0, 3.5 + yoga_sessions * 0.02), 1),
+            "active_days":    min(yoga_sessions + enrolled_count, 99),
+            "weekly":         weekly,
+            "programs":       programs,
+            "water_today":    water_today,
+        }
+    })
+
+
+@app.route("/log-water", methods=["POST"])
+def log_water():
+    """Log water intake. Body: { amount: 0.25 } in litres."""
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data   = request.get_json() or request.form
+    amount = float(data.get("amount", 0.25))
+    user_id = session["user_id"]
+
+    from datetime import date
+    today = str(date.today())
+    conn  = get_db()
+
+    try:
+        # Create water_tracking table if it doesn't exist
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS water_tracking (
+                id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                intake  REAL    DEFAULT 0.0,
+                date    TEXT    DEFAULT (date('now'))
+            )
+        """)
+        conn.execute(
+            "INSERT INTO water_tracking (user_id, intake, date) VALUES (?,?,?)",
+            (user_id, amount, today)
+        )
+        conn.commit()
+
+        total = conn.execute(
+            "SELECT SUM(intake) FROM water_tracking WHERE user_id=? AND date=?",
+            (user_id, today)
+        ).fetchone()[0] or 0
+
+        return jsonify({
+            "success": True,
+            "total":   round(total, 2),
+            "cups":    round(total / 0.25)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+@app.route("/mark-complete", methods=["POST"])
+def mark_complete():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data       = request.get_json() or request.form
+    program_id = data.get("program_id")
+    day        = data.get("day")
+
+    if not program_id or not day:
+        return jsonify({"success": False, "error": "program_id and day required"}), 400
+
+    user_id = session["user_id"]
+    conn    = get_db()
+
+    # Add completed_at column if it doesn't exist yet
+    try:
+        conn.execute("ALTER TABLE user_progress ADD COLUMN completed_at TEXT")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists
+
+    enrolled = conn.execute(
+        "SELECT id FROM enrolled_programs WHERE user_id=? AND program_id=?",
+        (user_id, int(program_id))
+    ).fetchone()
+    if not enrolled:
+        return jsonify({"success": False, "error": "Not enrolled"}), 403
+
+    from datetime import datetime
+    now = datetime.now().isoformat()
+
+    existing = conn.execute(
+        "SELECT id, completed FROM user_progress WHERE user_id=? AND program_id=? AND day_completed=?",
+        (user_id, int(program_id), int(day))
+    ).fetchone()
+
+    if existing:
+        new_val = 0 if existing["completed"] else 1
+        completed_at = now if new_val else None
+        conn.execute(
+            "UPDATE user_progress SET completed=?, completed_at=? WHERE id=?",
+            (new_val, completed_at, existing["id"])
+        )
+    else:
+        new_val = 1
+        conn.execute(
+            """INSERT INTO user_progress
+               (user_id, program_id, day_completed, completed, completed_at)
+               VALUES (?,?,?,1,?)""",
+            (user_id, int(program_id), int(day), now)
+        )
+
+    total_done = conn.execute(
+        "SELECT COUNT(*) FROM user_progress WHERE user_id=? AND program_id=? AND completed=1",
+        (user_id, int(program_id))
+    ).fetchone()[0]
+
+    conn.commit()
+    return jsonify({
+        "success":    True,
+        "day":        int(day),
+        "completed":  bool(new_val),
+        "total_done": total_done
+    })    
 # ============================
 # LOGIN
 # ============================
@@ -1308,7 +1672,9 @@ def dashboard():
 # ============================
 # RUN APP
 # ============================
-
+with app.app_context():
+    init_fityoga_tables()
+    seed_fityoga_data()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
