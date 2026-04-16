@@ -46,10 +46,7 @@ app.config["BABEL_SUPPORTED_LOCALES"] = ["en", "hi", "mr"]
 
 
 
-import google.generativeai as genai
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-genai.configure(api_key=GEMINI_API_KEY)
 
 
 # ============================
@@ -636,38 +633,54 @@ def logout():
 # ============================
 # CHATBOT (LOGIN PROTECTED)
 # ============================
-@app.route("/chatbot", methods=["POST"])
+
+@app.route("/chatbot")
 def chatbot():
-    try:
-        data = request.get_json()
-        user_message = data.get("message", "").lower()
+    import random
 
-        # 🔥 SIMPLE WORKING LOGIC
-        if "fever" in user_message:
-            reply = "Fever is usually due to infection. Stay hydrated and rest."
+    # ✅ DEFINE msg FIRST (THIS WAS MISSING)
+    msg = request.args.get("message", "").lower()
 
-        elif "cold" in user_message or "cough" in user_message:
-            reply = "Common cold is viral. Drink warm fluids."
+    # 👉 if no message → open page
+    if not msg:
+        return render_template("chatbot.html")
 
-        elif "diet" in user_message or "food" in user_message:
-            reply = "Eat balanced meals with fruits and vegetables."
+    responses = []
 
-        elif "exercise" in user_message or "gym" in user_message:
-            reply = "Do 30 minutes of daily exercise."
+    if "fever" in msg:
+        responses.append(random.choice([
+            "You might have a fever. Stay hydrated.",
+            "Fever detected. Take rest and fluids."
+        ]))
 
-        elif "headache" in user_message or "head" in user_message:
-            reply = "Headache may be due to stress or dehydration."
+    if "headache" in msg:
+        responses.append(random.choice([
+            "Headache may be due to stress.",
+            "Rest and hydrate properly."
+        ]))
 
-        else:
-            reply = "Tell me your symptoms and I’ll help you."
+    if "cold" in msg or "cough" in msg:
+        responses.append(random.choice([
+            "Common cold. Drink warm fluids.",
+            "Take rest and stay warm."
+        ]))
 
-        return jsonify({"bot": reply})
+    if "diet" in msg:
+        responses.append("Eat balanced meals and avoid junk food.")
 
-    except Exception as e:
-        print("ERROR:", e)
-        return jsonify({"bot": "Server error"})
-        
-# ============================
+    if "exercise" in msg:
+        responses.append("30 minutes daily exercise is ideal.")
+
+    # 👉 FINAL RESPONSE
+    if responses:
+        reply = " ".join(responses[:2])
+    else:
+        reply = random.choice([
+            "Tell me more about your symptoms.",
+            "I'm here to help."
+        ])
+
+    return jsonify({"bot": reply})
 # NEARBY HOSPITALS (ONLY ONE ROUTE)
 # ============================
 def calculate_distance(lat1, lon1, lat2, lon2):

@@ -2,959 +2,187 @@
 {% block content %}
 
 <style>
-/* ===========================
-   CHAT SECTION
-=========================== */
-
-.chat-section {
-    min-height: calc(100vh - 140px);
-    padding: 20px 16px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    background:
-        radial-gradient(circle at top right, rgba(14,165,164,0.08), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(37,99,235,0.08), transparent 30%);
+body {
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    font-family: 'Poppins', sans-serif;
 }
 
-.chat-shell {
-    width: 100%;
-    max-width: 1180px;
-    display: grid;
-    grid-template-columns: 300px minmax(0, 1fr);
-    gap: 24px;
-    align-items: stretch;
-}
-
-/* ===========================
-   SIDEBAR
-=========================== */
-
-.chat-sidebar {
-    min-width: 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    height: calc(100vh - 180px);
-    min-height: 620px;
-    max-height: calc(100vh - 180px);
+.chat-wrapper {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #0b1220;
+    border-radius: 20px;
     overflow: hidden;
-}
-
-.sidebar-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.sidebar-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #2563EB, #1E3A8A);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 12px 24px rgba(37,99,235,0.20);
-    flex-shrink: 0;
-}
-
-.sidebar-head h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.sidebar-head p {
-    margin: 4px 0 0;
-    color: var(--text-light);
-    font-size: 13px;
-}
-
-.sidebar-scroll {
-    overflow-y: auto;
-    min-height: 0;
-    padding-right: 4px;
-}
-
-.sidebar-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 14px;
-}
-
-.sidebar-card h4 {
-    margin-bottom: 10px;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.prompt-list {
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.prompt-btn {
-    width: 100%;
-    text-align: left;
-    background: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.22s ease;
-    line-height: 1.5;
-}
-
-.prompt-btn:hover {
-    transform: translateY(-1px);
-    border-color: rgba(37,99,235,0.35);
-    box-shadow: 0 10px 24px rgba(37,99,235,0.08);
-}
-
-.quick-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.quick-tag {
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: rgba(37,99,235,0.08);
-    color: var(--primary);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.sidebar-note {
-    margin-top: auto;
-    font-size: 12px;
-    color: var(--text-light);
-    line-height: 1.6;
-    padding-top: 6px;
-}
-
-/* ===========================
-   CHAT CONTAINER
-=========================== */
-
-.chat-container {
-    width: 100%;
-    height: calc(100vh - 180px);
-    min-height: 620px;
-    max-height: calc(100vh - 180px);
-    min-width: 0;
-    background: var(--card);
-    border-radius: 24px;
-    border: 1px solid var(--border);
-    box-shadow: 0 30px 70px rgba(0,0,0,0.12);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    height: 85vh;
 }
 
 /* HEADER */
-
 .chat-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    background: linear-gradient(180deg, rgba(37,99,235,0.03), transparent);
-    flex-shrink: 0;
-}
-
-.chat-header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-}
-
-.chat-header-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: linear-gradient(135deg,#0EA5A4,#0F766E);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg,#2563eb,#0ea5a4);
     color: white;
-    box-shadow: 0 10px 22px rgba(14,165,164,0.25);
-    flex-shrink: 0;
-}
-
-.chat-header h3 {
-    margin: 0;
-    font-size: 20px;
-}
-
-.chat-header small {
-    color: var(--text-light);
-    font-size: 13px;
-}
-
-.status-badge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 9px 12px;
-    border-radius: 999px;
-    background: rgba(34,197,94,0.10);
-    color: #15803D;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    flex-shrink: 0;
+    gap: 12px;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #22C55E;
-    box-shadow: 0 0 0 0 rgba(34,197,94,0.45);
-    animation: pulseDot 2.5s infinite;
+.chat-header i {
+    margin-left: 8px;
 }
 
-@keyframes pulseDot {
-    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.45); }
-    70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
-    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+.chat-header h2 {
+    margin: 0 0 0 -4px;
+    font-size: 22px;
 }
 
 /* BODY */
-
 .chat-body {
     flex: 1;
-    min-height: 0;
-    padding: 24px 22px;
+    padding: 20px;
     overflow-y: auto;
-    overflow-x: hidden;
-    background: var(--bg);
-    scroll-behavior: smooth;
+    background: #020617;
 }
 
-.empty-state {
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.empty-card {
-    max-width: 560px;
-    text-align: center;
-    padding: 30px;
-    border-radius: 22px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.05);
-}
-
-.empty-card .empty-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 22px;
-    margin: 0 auto 16px;
-    background: linear-gradient(135deg,#2563EB,#0EA5A4);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 14px 28px rgba(37,99,235,0.16);
-}
-
-.empty-card h3 {
-    margin-bottom: 10px;
-    font-size: 24px;
-}
-
-.empty-card p {
-    color: var(--text-light);
-    line-height: 1.7;
-    font-size: 15px;
-}
-
-/* MESSAGES */
-
-.message-row {
-    display: flex;
-    margin-bottom: 18px;
-    width: 100%;
-}
-
-.message-row.user-row {
-    justify-content: flex-end;
-}
-
-.message-row.bot-row {
-    justify-content: flex-start;
-}
-
+/* MESSAGE */
 .message {
-    max-width: min(76%, 720px);
-    padding: 14px 16px;
-    border-radius: 18px;
-    font-size: 15px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    line-height: 1.65;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-    min-width: 0;
+    max-width: 70%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    font-size: 14px;
 }
 
 .user {
-    background: linear-gradient(135deg,#2563EB,#1E40AF);
+    background: #2563eb;
     color: white;
-    border-bottom-right-radius: 8px;
+    margin-left: auto;
 }
 
 .bot {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 8px;
+    background: #1e293b;
+    color: #e2e8f0;
 }
 
-.message-icon {
-    flex-shrink: 0;
-    margin-top: 2px;
+/* INPUT */
+.chat-input-area {
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.message-text {
-    min-width: 0;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    white-space: pre-wrap;
-}
-
-.message-text p {
-    margin: 0;
-}
-
-.typing-dots {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    height: 18px;
-}
-
-.typing-dots span {
-    width: 7px;
-    height: 7px;
-    background: #0EA5A4;
-    border-radius: 50%;
-    opacity: 0.35;
-    animation: bounceDot 1.2s infinite;
-}
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes bounceDot {
-    0%, 80%, 100% {
-        transform: translateY(0);
-        opacity: 0.35;
-    }
-    40% {
-        transform: translateY(-4px);
-        opacity: 1;
-    }
-}
-
-/* INPUT AREA */
-
-.chat-form {
-    border-top: 1px solid var(--border);
-    padding: 18px 20px 20px;
-    background: var(--card);
-    flex-shrink: 0;
-}
-
-.chat-tools {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.chat-tools-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.chat-tools-note {
-    font-size: 12px;
-    color: var(--text-light);
-}
-
-.upload-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px dashed var(--border);
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: var(--text-light);
-    background: var(--bg);
-    cursor: pointer;
-}
-
-.image-preview {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg);
-}
-
-.image-preview span {
-    font-size: 13px;
-    color: var(--text-light);
-    min-width: 0;
-    word-break: break-word;
-}
-
-.image-preview button {
-    border: none;
-    background: transparent;
-    color: #DC2626;
-    cursor: pointer;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.chat-input-wrapper {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+    padding: 14px;
+    border-top: 1px solid #1e293b;
+    background: #020617;
 }
 
 .chat-input {
     flex: 1;
-    min-width: 0;
-    padding: 16px 18px;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    font-size: 15px;
-}
-
-.chat-input:focus {
-    border-color: rgba(37,99,235,0.4);
-    box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
-}
-
-.icon-btn,
-.send-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
+    padding: 12px;
+    border-radius: 10px;
     border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.22s ease;
-    flex-shrink: 0;
-}
-
-.icon-btn {
-    background: var(--bg);
-    color: var(--text);
-    border: 1px solid var(--border);
-}
-
-.icon-btn:hover,
-.send-btn:hover {
-    transform: translateY(-1px);
-}
-
-.voice-btn.is-listening {
-    background: #DC2626;
+    outline: none;
+    background: #1e293b;
     color: white;
-    border-color: #DC2626;
-    box-shadow: 0 10px 24px rgba(220,38,38,0.18);
 }
 
 .send-btn {
-    background: linear-gradient(135deg,#2563EB,#1E40AF);
+    margin-left: 10px;
+    background: linear-gradient(135deg,#2563eb,#1e40af);
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
     color: white;
-    box-shadow: 0 14px 26px rgba(37,99,235,0.18);
-}
-
-.chat-disclaimer {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--text-light);
-    line-height: 1.5;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 1024px) {
-    .chat-shell {
-        grid-template-columns: 1fr;
-    }
-
-    .chat-sidebar {
-        order: 2;
-        height: auto;
-        min-height: auto;
-        max-height: none;
-    }
-
-    .chat-sidebar .sidebar-scroll {
-        overflow: visible;
-    }
-
-    .chat-container {
-        order: 1;
-        height: calc(100vh - 170px);
-        min-height: 620px;
-        max-height: calc(100vh - 170px);
-    }
-}
-
-@media (max-width: 700px) {
-    .chat-section {
-        padding: 12px;
-        align-items: flex-start;
-    }
-
-    .chat-container {
-        height: calc(100vh - 110px);
-        min-height: calc(100vh - 110px);
-        max-height: calc(100vh - 110px);
-        border-radius: 18px;
-    }
-
-    .chat-header {
-        padding: 16px;
-        align-items: flex-start;
-    }
-
-    .chat-header h3 {
-        font-size: 18px;
-    }
-
-    .chat-body {
-        padding: 18px 14px;
-    }
-
-    .message {
-        max-width: 92%;
-        font-size: 14px;
-    }
-
-    .chat-form {
-        padding: 14px;
-    }
-
-    .chat-input-wrapper {
-        gap: 8px;
-    }
-
-    .icon-btn,
-    .send-btn {
-        width: 48px;
-        height: 48px;
-    }
-
-    .chat-input {
-        padding: 14px;
-    }
+    cursor: pointer;
 }
 </style>
 
-<div class="chat-section">
-    <div class="chat-shell">
+<div class="chat-wrapper">
 
-        <aside class="chat-sidebar">
-            <div class="sidebar-head">
-                <div class="sidebar-icon">
-                    <i data-lucide="shield-plus"></i>
-                </div>
-                <div>
-                    <h3>HealthTrackk AI </h3>
-                    <p>Safer guidance, cleaner answers</p>
-                </div>
-            </div>
-
-            <div class="sidebar-scroll">
-                <div class="sidebar-card">
-                    <h4>
-                        <i data-lucide="sparkles"></i>
-                        Suggested prompts
-                    </h4>
-                    <div class="prompt-list">
-                        <button class="prompt-btn" type="button" onclick="usePrompt('What are the warning signs of low blood sugar?')">
-                            What are the warning signs of low blood sugar?
-                        </button>
-                        <button class="prompt-btn" type="button" onclick="usePrompt('I have fever and body pain. What should I monitor?')">
-                            I have fever and body pain. What should I monitor?
-                        </button>
-                        <button class="prompt-btn" type="button" onclick="usePrompt('What symptoms mean I should seek urgent care immediately?')">
-                            What symptoms mean I should seek urgent care immediately?
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sidebar-card">
-                    <h4>
-                        <i data-lucide="activity"></i>
-                        Use it for
-                    </h4>
-                    <div class="quick-tags">
-                        <span class="quick-tag">Symptoms</span>
-                        <span class="quick-tag">Precautions</span>
-                        <span class="quick-tag">Diet basics</span>
-                        <span class="quick-tag">Emergency signs</span>
-                        <span class="quick-tag">General guidance</span>
-                    </div>
-                </div>
-
-                <div class="sidebar-card">
-                    <h4>
-                        <i data-lucide="shield-alert"></i>
-                        Safety note
-                    </h4>
-                    <p class="sidebar-note" style="margin-top:0;">
-                        This assistant is for support and screening guidance. It does not replace a doctor or emergency care.
-                    </p>
-                </div>
-            </div>
-        </aside>
-
-        <div class="chat-container">
-
-            <div class="chat-header">
-                <div class="chat-header-left">
-                    <div class="chat-header-icon">
-                        <i data-lucide="bot"></i>
-                    </div>
-                    <div>
-                        <h3>AI Health Assistant</h3>
-                        <small>Real-time medical guidance with safer responses</small>
-                    </div>
-                </div>
-
-                <div class="status-badge">
-                    <span class="status-dot"></span>
-                    <span>Online</span>
-                </div>
-            </div>
-
-            <div class="chat-body" id="chatBody">
-                {% if chats and chats|length > 0 %}
-                    {% for chat in chats %}
-                        <div class="message-row user-row">
-                            <div class="message user">
-                                <div class="message-icon">
-                                    <i data-lucide="user-round"></i>
-                                </div>
-                                <div class="message-text">{{ chat[0] }}</div>
-                            </div>
-                        </div>
-
-                        <div class="message-row bot-row">
-                            <div class="message bot">
-                                <div class="message-icon">
-                                    <i data-lucide="bot"></i>
-                                </div>
-                                <div class="message-text">{{ chat[1] }}</div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state" id="emptyState">
-                        <div class="empty-card">
-                            <div class="empty-icon">
-                                <i data-lucide="stethoscope"></i>
-                            </div>
-                            <h3>Ask anything health-related</h3>
-                            <p>
-                                Ask about symptoms, precautions, diet basics, warning signs, or when to seek urgent help.
-                            </p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-
-            <form id="chatForm" class="chat-form">
-                <div class="chat-tools">
-                    <div class="chat-tools-left">
-                        <label class="upload-chip" for="imageInput">
-                            <i data-lucide="image-plus"></i>
-                            <span>Attach image</span>
-                        </label>
-                        <input type="file" id="imageInput" accept="image/*" hidden>
-                        <span class="chat-tools-note">Voice is enabled. Image upload UI is ready for backend integration.</span>
-                    </div>
-                </div>
-
-                <div class="image-preview" id="imagePreview">
-                    <span id="imagePreviewName"></span>
-                    <button type="button" onclick="clearImagePreview()">Remove</button>
-                </div>
-
-                <div class="chat-input-wrapper">
-                    <input
-                        type="text"
-                        id="chatInput"
-                        name="message"
-                        placeholder="Ask a health-related question..."
-                        required
-                        class="chat-input"
-                    >
-
-                    <button type="button" id="voiceBtn" class="icon-btn voice-btn" title="Voice input">
-                        <i data-lucide="mic"></i>
-                    </button>
-
-                    <button type="submit" class="send-btn" title="Send message">
-                        <i data-lucide="send-horizontal"></i>
-                    </button>
-                </div>
-
-                <div class="chat-disclaimer">
-                    For severe symptoms like chest pain, breathing difficulty, stroke signs, or unconsciousness, use emergency help immediately.
-                </div>
-            </form>
-
-        </div>
-    </div>
+```
+<!-- HEADER -->
+<div class="chat-header">
+    <i data-lucide="bot"></i>
+    <h2>Health Assistant</h2>
 </div>
+
+<!-- BODY -->
+<div class="chat-body" id="chatBody"></div>
+
+<!-- INPUT (NO FORM) -->
+<div class="chat-input-area">
+    <input 
+        type="text" 
+        id="chatInput" 
+        class="chat-input" 
+        placeholder="Ask about your health..."
+    >
+    <button class="send-btn" onclick="sendMessage()">
+        <i data-lucide="send"></i>
+    </button>
+</div>
+```
+
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <script>
 lucide.createIcons();
 
-const form = document.getElementById("chatForm");
 const input = document.getElementById("chatInput");
 const chatBody = document.getElementById("chatBody");
-const emptyState = document.getElementById("emptyState");
-const voiceBtn = document.getElementById("voiceBtn");
-const imageInput = document.getElementById("imageInput");
-const imagePreview = document.getElementById("imagePreview");
-const imagePreviewName = document.getElementById("imagePreviewName");
 
-let currentTypingBubble = null;
+// add message
+function addMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = "message " + type;
+    div.textContent = text;
 
-function refreshIcons() {
-    lucide.createIcons();
-}
-
-function scrollBottom() {
+    chatBody.appendChild(div);
     chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-function removeEmptyState() {
-    const empty = document.getElementById("emptyState");
-    if (empty) empty.remove();
-}
-
-function usePrompt(text) {
-    input.value = text;
-    input.focus();
-}
-
-function createMessageRow(type) {
-    const row = document.createElement("div");
-    row.classList.add("message-row", type === "user" ? "user-row" : "bot-row");
-
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", type);
-
-    const iconWrap = document.createElement("div");
-    iconWrap.classList.add("message-icon");
-
-    const icon = document.createElement("i");
-    icon.setAttribute("data-lucide", type === "user" ? "user-round" : "bot");
-
-    const textDiv = document.createElement("div");
-    textDiv.classList.add("message-text");
-
-    iconWrap.appendChild(icon);
-    msgDiv.appendChild(iconWrap);
-    msgDiv.appendChild(textDiv);
-    row.appendChild(msgDiv);
-
-    chatBody.appendChild(row);
-    refreshIcons();
-    scrollBottom();
-
-    return textDiv;
-}
-
-function addMessage(text, type) {
-    removeEmptyState();
-    const textDiv = createMessageRow(type);
-    textDiv.textContent = text;
-}
-
-function showTypingIndicator() {
-    removeEmptyState();
-    const textDiv = createMessageRow("bot");
-    textDiv.innerHTML = `
-        <div class="typing-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    `;
-    currentTypingBubble = textDiv;
-}
-
-function removeTypingIndicator() {
-    if (currentTypingBubble) {
-        const row = currentTypingBubble.closest(".message-row");
-        if (row) row.remove();
-        currentTypingBubble = null;
-    }
-}
-
-function typeBotMessage(text) {
-    removeTypingIndicator();
-    const textDiv = createMessageRow("bot");
-
-    let i = 0;
-    const safeText = text || "Sorry, I could not generate a response right now.";
-
-    function type() {
-        if (i < safeText.length) {
-            textDiv.textContent = safeText.substring(0, i + 1);
-            i++;
-            scrollBottom();
-            setTimeout(type, 10);
-        } else {
-            textDiv.textContent = safeText;
-        }
-    }
-
-    type();
-}
-
-form.addEventListener("submit", function(e) {
-    e.preventDefault();
-
+// send message
+function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
 
     addMessage(message, "user");
     input.value = "";
-    showTypingIndicator();
 
-    fetch("/chatbot", {
-        method: "POST",
-        headers: {
-    "Content-Type": "application/json"
-},
-body: JSON.stringify({ message: message })
-    })
-    .then(response => response.json())
+    fetch("/chatbot?message=" + encodeURIComponent(message))
+    .then(res => res.json())
     .then(data => {
-        if (data.bot && data.bot.trim() !== "") {
-            typeBotMessage(data.bot);
-        } else {
-            typeBotMessage("Sorry, I could not generate a response right now.");
-        }
+        addMessage(data.bot, "bot");
     })
-    .catch(error => {
-        console.error(error);
-        removeTypingIndicator();
-        typeBotMessage("Something went wrong. Please try again.");
+    .catch(() => {
+        addMessage("Server error", "bot");
     });
-});
-
-input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        form.dispatchEvent(new Event("submit"));
-    }
-});
-
-if ("webkitSpeechRecognition" in window) {
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    voiceBtn.addEventListener("click", () => {
-        recognition.start();
-        voiceBtn.classList.add("is-listening");
-    });
-
-    recognition.onresult = function(event) {
-        input.value = event.results[0][0].transcript;
-        voiceBtn.classList.remove("is-listening");
-    };
-
-    recognition.onerror = function() {
-        voiceBtn.classList.remove("is-listening");
-    };
-
-    recognition.onend = function() {
-        voiceBtn.classList.remove("is-listening");
-    };
-} else {
-    voiceBtn.disabled = true;
-    voiceBtn.title = "Voice input not supported on this browser";
 }
 
-imageInput.addEventListener("change", function() {
-    const file = imageInput.files[0];
-
-    if (!file) {
-        clearImagePreview();
-        return;
+// ENTER KEY SUPPORT
+input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
     }
-
-    imagePreview.style.display = "flex";
-    imagePreviewName.textContent = file.name;
 });
+function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const message = input.value.trim();
 
-function clearImagePreview() {
-    imageInput.value = "";
-    imagePreview.style.display = "none";
-    imagePreviewName.textContent = "";
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    fetch("/chatbot?message=" + encodeURIComponent(message))
+    .then(res => res.json())
+    .then(data => {
+        addMessage(data.bot, "bot");
+    })
+    .catch(() => {
+        addMessage("Server error", "bot");
+    });
 }
-
-scrollBottom();
 </script>
 
 {% endblock %}
