@@ -636,66 +636,99 @@ def logout():
 # ============================
 # CHATBOT (LOGIN PROTECTED)
 # ============================
-
-@app.route("/chatbot", methods=["GET", "POST"])
+@app.route("/chatbot", methods=["GET"])
 @login_required
+def chatbot_page():
+    return render_template("chatbot.html")
+@app.route("/chatbot", methods=["POST"])
 def chatbot():
-    conn = get_db()
-    cursor = conn.cursor()
+    user_message = request.form.get("message", "").lower()
 
-    if request.method == "POST":
-        user_message = request.form.get("message", "").strip()
+    # 🔥 Knowledge base (expandable)
+    knowledge_base = {
 
-        if not user_message:
-            conn.close()
-            return jsonify({"bot": "Please enter a message."})
+        # GENERAL
+        "hello": "Hello! How can I help you with your health today?",
+        "hi": "Hi there! Ask me anything about your health.",
+        "how are you": "I'm here to help you stay healthy 😊",
 
-        try:
-            if client is None:
-                raise RuntimeError("Missing Gemini API key")
+        # FEVER
+        "fever": "Fever is usually due to infection. Stay hydrated and rest. If it persists, consult a doctor.",
+        "high fever": "High fever above 102°F needs medical attention.",
+        "fever treatment": "Take rest, fluids, and paracetamol if needed.",
 
-            prompt = f"""
-You are a professional AI medical assistant.
-Provide accurate health information.
-Never provide dangerous medical instructions.
-Always recommend consulting a doctor for serious conditions.
-Keep replies concise, calm, and practical.
+        # COLD / COUGH
+        "cold": "Common cold is viral. Drink warm fluids and rest.",
+        "cough": "Cough may be due to infection or allergy. Steam inhalation helps.",
+        "dry cough": "Dry cough can be due to irritation. Stay hydrated.",
 
-User: {user_message}
-"""
+        # DIET
+        "diet": "Eat balanced meals with protein, fruits, vegetables, and water.",
+        "healthy food": "Include green vegetables, fruits, and whole grains.",
+        "weight loss": "Reduce sugar, eat protein, and exercise daily.",
 
-            result = client.models.generate_content(
-                model="gemini-1.5-flash",
-                contents=prompt
-            )
+        # EXERCISE
+        "exercise": "30 minutes daily exercise is recommended.",
+        "gym": "Start with light workouts and increase gradually.",
+        "yoga": "Yoga improves flexibility and reduces stress.",
 
-            response = result.text if result and result.text else "I couldn't generate a response. Please try again."
+        # HEART
+        "heart": "Maintain low cholesterol, exercise regularly, and avoid smoking.",
+        "heart disease": "Risk increases with poor lifestyle. Stay active and eat healthy.",
 
-        except Exception as e:
-            print("GEMINI ERROR:", str(e))
-            response = "AI service is temporarily unavailable. Please try again later."
+        # DIABETES
+        "diabetes": "Control sugar intake, exercise daily, and monitor glucose.",
+        "high sugar": "Avoid sweets and processed food.",
 
-        cursor.execute("""
-            INSERT INTO chatbot_history (user_id, user_message, bot_response)
-            VALUES (?, ?, ?)
-        """, (session["user_id"], user_message, response))
+        # STRESS
+        "stress": "Practice meditation, yoga, and take proper sleep.",
+        "anxiety": "Deep breathing and relaxation help reduce anxiety.",
 
-        conn.commit()
-        conn.close()
+        # SLEEP
+        "sleep": "Sleep at least 7-8 hours daily.",
+        "insomnia": "Avoid screens before bed and maintain routine.",
 
-        return jsonify({"bot": response})
+        # WATER
+        "water": "Drink 2-3 liters of water daily.",
+        "hydration": "Stay hydrated especially in hot weather.",
 
-    cursor.execute("""
-        SELECT user_message, bot_response
-        FROM chatbot_history
-        WHERE user_id = ?
-        ORDER BY rowid ASC
-    """, (session["user_id"],))
+        # IMMUNITY
+        "immunity": "Eat fruits, vegetables, and exercise regularly.",
+        "boost immunity": "Vitamin C, sleep, and exercise help.",
 
-    chats = cursor.fetchall()
-    conn.close()
+        # HEADACHE
+        "headache": "Rest and hydration help. If frequent, consult doctor.",
+        "migraine": "Avoid triggers like stress and bright light.",
 
-    return render_template("chatbot.html", chats=chats)
+        # STOMACH
+        "stomach pain": "Could be indigestion. Avoid heavy food.",
+        "acidity": "Avoid spicy food and eat on time.",
+
+        # SKIN
+        "skin": "Drink water and maintain hygiene.",
+        "pimples": "Avoid oily food and keep skin clean.",
+
+        # EMERGENCY
+        "emergency": "Call ambulance (108 in India) immediately.",
+        "chest pain": "Seek immediate medical help.",
+
+        # DEFAULT
+        "default": "I'm here to help with health questions. Try asking about fever, diet, exercise, or symptoms."
+    }
+
+    # 🔍 Matching logic
+    # 🔍 Matching logic (FIXED)
+    for key in knowledge_base:
+     keywords = key.split()
+
+    for word in keywords:
+        if word in user_message:
+            return jsonify({"bot": knowledge_base[key]})
+
+# ✅ default fallback
+        return jsonify({"bot": knowledge_base["default"]})
+    
+        
 # ============================
 # NEARBY HOSPITALS (ONLY ONE ROUTE)
 # ============================
@@ -1310,6 +1343,10 @@ def fityoga_dashboard_data():
 
     user_id = session["user_id"]
     conn    = get_db()
+    profile = conn.execute(
+    "SELECT age, gender, height, weight FROM users WHERE user_id = ?",
+    (user_id,)
+).fetchone()
 
     # ── User basic info ───────────────────────────────────────
     user = conn.execute(
@@ -1427,9 +1464,30 @@ def fityoga_dashboard_data():
             "weekly":         weekly,
             "programs":       programs,
             "water_today":    water_today,
+            "age": profile["age"] if profile else None,
+            "gender": profile["gender"] if profile else None,
+            "height": profile["height"] if profile else None,
+            "weight": profile["weight"] if profile else None,
         }
     })
+@app.route("/fill")
+@login_required
+def fill():
+    user_id = session["user_id"]
 
+    data = fetch_dashboard_context(user_id)
+    profile = data.get("profile", {})
+
+    return render_template("fill.html", profile=profile)
+
+@app.route("/save-profile", methods=["POST"])
+@login_required
+def save_profile():
+    user_id = session["user_id"]
+
+    upsert_user_profile(user_id, request.form)
+
+    return redirect("/dashboard?tab=profile")   # 🔥 THIS LINE IS CRITICAL
 
 @app.route("/log-water", methods=["POST"])
 def log_water():

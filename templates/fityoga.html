@@ -2105,6 +2105,81 @@ html {
   transform: translateY(-2px);
 }
 
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-overlay.show {
+  display: flex;
+}
+
+.popup-card {
+  width: 90%;
+  max-width: 500px;
+  background: white;
+  padding: 40px 30px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+  animation: popupFade 0.5s ease;
+}
+
+.popup-icon {
+  font-size: 50px;
+  margin-bottom: 15px;
+}
+
+.popup-card h2 {
+  margin-bottom: 10px;
+}
+
+.popup-card p {
+  color: #64748B;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-primary {
+  padding: 12px 18px;
+  background: linear-gradient(135deg,#2563EB,#1E3A8A);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-secondary {
+  padding: 12px 18px;
+  background: #E5E7EB;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 @media (max-width: 1100px) {
   .live-yoga-wrap {
     grid-template-columns: 1fr;
@@ -2240,7 +2315,7 @@ html {
             <div class="profile-role">Wellness Member</div>
           </div>
           <div class="profile-badges">
-            <span class="pbadge">🧘 Yogi</span>
+            <span class="pbadge">🧘 Yoga</span>
             <span class="pbadge teal">💪 Active</span>
             <span class="pbadge green">🔥 Streaker</span>
           </div>
@@ -2251,12 +2326,12 @@ html {
           <div><div class="pstat-val">38</div><div class="pstat-label">Days Active</div></div>
           <div><div class="pstat-val">4.8</div><div class="pstat-label">Avg Score</div></div>
         </div>
-
+        
         <div class="profile-divider"></div>
 
         <div class="profile-info-row">
           <div class="profile-info-icon"><i data-lucide="user" style="width:16px;height:16px"></i></div>
-          <div><div class="profile-info-label">Age / Gender</div><div class="profile-info-val">27 yrs · Male</div></div>
+          <div><div class="profile-info-label">Age / Gender</div><div class="profile-info-val">22yrs · Male</div></div>
         </div>
         <div class="profile-info-row">
           <div class="profile-info-icon"><i data-lucide="ruler" style="width:16px;height:16px"></i></div>
@@ -2268,7 +2343,7 @@ html {
         </div>
         <div class="profile-info-row">
           <div class="profile-info-icon" style="background:var(--green-soft);color:var(--green)"><i data-lucide="calendar" style="width:16px;height:16px"></i></div>
-          <div><div class="profile-info-label">Member Since</div><div class="profile-info-val">January 2025</div></div>
+          <div><div class="profile-info-label">Member Since</div><div class="profile-info-val">April 2026</div></div>
         </div>
       </div>
 
@@ -2277,7 +2352,7 @@ html {
           <div>
             <div style="font-size:.8rem;color:#64748B;margin-bottom:.3rem">Current Streak</div>
             <div class="streak-val">12 Days</div>
-            <div class="streak-label">Keep it up! Personal best: 18 days</div>
+            <div class="streak-label">Keep it up! Personal best: 0 days</div>
           </div>
           <div class="streak-fire">🔥</div>
         </div>
@@ -2455,97 +2530,7 @@ html {
 </div>
 
 
-  <!-- VIDEO TUTORIALS -->
-  <section class="reveal">
-    <div class="section-label">Learn & Practice</div>
-    <h2 class="section-title">Video Tutorials</h2>
-    <p class="section-sub">Expert-guided sessions you can follow along</p>
-    <div class="video-grid">
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#1E3A5F,#2563EB)">
-          <span style="font-size:3rem">🧘‍♀️</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">24:15</div>
-          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Morning Yoga Flow</div>
-          <div class="video-meta"><span>By Priya Sharma</span><span>·</span><span>12.4K views</span></div>
-          <div class="video-tags"><span class="vtag">Flexibility</span><span class="vtag">Morning</span><span class="vtag">15 min</span></div>
-        </div>
-      </div>
 
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#0C4A3E,#0EA5A4)">
-          <span style="font-size:3rem">💪</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">18:42</div>
-          <div class="video-level diff-badge diff-intermediate" style="font-size:.7rem">Intermediate</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Full Body Stretch Routine</div>
-          <div class="video-meta"><span>By Rahul Verma</span><span>·</span><span>8.2K views</span></div>
-          <div class="video-tags"><span class="vtag">Recovery</span><span class="vtag">Evening</span><span class="vtag">20 min</span></div>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#3B1F2B,#9333EA)">
-          <span style="font-size:3rem">🌙</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">12:00</div>
-          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Deep Sleep Meditation</div>
-          <div class="video-meta"><span>By Ananya Rao</span><span>·</span><span>21.7K views</span></div>
-          <div class="video-tags"><span class="vtag">Sleep</span><span class="vtag">Calm</span><span class="vtag">Night</span></div>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#1A3020,#22C55E)">
-          <span style="font-size:3rem">🏃</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">30:10</div>
-          <div class="video-level diff-badge diff-intermediate" style="font-size:.7rem">Intermediate</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Beginner Cardio Blast</div>
-          <div class="video-meta"><span>By Dev Mehta</span><span>·</span><span>5.9K views</span></div>
-          <div class="video-tags"><span class="vtag">Cardio</span><span class="vtag">Energy</span><span class="vtag">30 min</span></div>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#1C1A0F,#F59E0B)">
-          <span style="font-size:3rem">🌞</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">45:00</div>
-          <div class="video-level diff-badge diff-advanced" style="font-size:.7rem">Advanced</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Surya Namaskar Masterclass</div>
-          <div class="video-meta"><span>By Kavita Iyer</span><span>·</span><span>33.1K views</span></div>
-          <div class="video-tags"><span class="vtag">Full Body</span><span class="vtag">Strength</span><span class="vtag">Sun</span></div>
-        </div>
-      </div>
-
-      <div class="video-card">
-        <div class="video-thumb" style="background:linear-gradient(135deg,#0D1F3C,#3B82F6)">
-          <span style="font-size:3rem">🫁</span>
-          <div class="video-thumb-overlay"><div class="play-btn"><i data-lucide="play" style="width:22px;height:22px"></i></div></div>
-          <div class="video-duration">10:30</div>
-          <div class="video-level diff-badge diff-beginner" style="font-size:.7rem">Beginner</div>
-        </div>
-        <div class="video-body">
-          <div class="video-title">Pranayama Breathing Guide</div>
-          <div class="video-meta"><span>By Meera Singh</span><span>·</span><span>17.5K views</span></div>
-          <div class="video-tags"><span class="vtag">Breathing</span><span class="vtag">Calm</span><span class="vtag">Focus</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- EXERCISE -->
   <section id="exercise-section" class="reveal">
@@ -2604,20 +2589,7 @@ html {
     </div>
   </section>
 
-  <!-- WELLNESS STRIP -->
-  <section class="reveal">
-    <div class="wellness-strip-wrap">
-      <div class="wellness-strip-title">🌿 Wellness Recommendations</div>
-      <div class="wellness-pills">
-        <div class="wellness-pill"><div class="wellness-pill-icon">❤️</div> Heart Support</div>
-        <div class="wellness-pill"><div class="wellness-pill-icon">🩺</div> Diabetes Friendly</div>
-        <div class="wellness-pill"><div class="wellness-pill-icon">😌</div> Stress Relief</div>
-        <div class="wellness-pill"><div class="wellness-pill-icon">🦴</div> Posture Care</div>
-        <div class="wellness-pill"><div class="wellness-pill-icon">⚡</div> Energy Boost</div>
-        <div class="wellness-pill"><div class="wellness-pill-icon">😴</div> Sleep Support</div>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- PLANNER -->
   <section class="reveal">
@@ -3019,6 +2991,27 @@ html {
       <button class="footer-cta-btn">Start Your Journey →</button>
     </div>
   </section>
+  <!-- PROFILE POPUP -->
+<div class="popup-overlay" id="profilePopup">
+  <div class="popup-card">
+
+    <div class="popup-icon">🧬</div>
+
+    <h2>Complete Your Health Profile</h2>
+
+    <p>
+      Add your personal health details to unlock accurate predictions,
+      better insights, and personalized recommendations.
+    </p>
+
+    <div class="popup-buttons">
+      <a href="/fill" class="btn-primary">Fill Details</a>
+      <button class="btn-secondary" onclick="closePopup()">Maybe Later</button>
+    </div>
+
+  </div>
+
+
 
 </div>
 
@@ -3463,7 +3456,21 @@ async function loadProgress() {
 }
 loadProgress();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const popup = document.getElementById("profilePopup");
 
+  if (!localStorage.getItem("profileFilled")) {
+    setTimeout(() => {
+      popup.classList.add("show");
+    }, 500); // slight delay = premium feel
+  }
+});
+
+function closePopup() {
+  document.getElementById("profilePopup").classList.remove("show");
+}
+</script>
 
 
 {% endblock %}

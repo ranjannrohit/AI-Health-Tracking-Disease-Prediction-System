@@ -267,12 +267,44 @@
                     <h3>Medical Records</h3>
                     <span class="panel-badge">Module</span>
                 </div>
-                <div class="single-placeholder">
-                    <div class="placeholder-data">
-                        <span class="placeholder-icon">🗂️</span>
-                        <strong>Records Module</strong>
-                        <p>Prescriptions, reports, and files can be stored here.</p>
-                    </div>
+                <div class="records-table">
+
+  {% if predictions %}
+  <table class="prediction-table">
+    <thead>
+      <tr>
+        <th>Disease</th>
+        <th>Risk</th>
+        <th>Probability</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for p in predictions %}
+      <tr>
+        <td>{{ p[0] }}</td>
+
+        <td>
+          <span class="risk-pill
+            {% if p[2] == 'High' %}pill-high
+            {% elif p[2] == 'Moderate' %}pill-moderate
+            {% else %}pill-low
+            {% endif %}">
+            {{ p[2] }}
+          </span>
+        </td>
+
+        <td>{{ (p[1] * 100) | round(1) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <p>No records found</p>
+  {% endif %}
+
+</div>
                 </div>
             </div>
 
@@ -283,12 +315,29 @@
                     <h3>Vaccinations</h3>
                     <span class="panel-badge">Tracker</span>
                 </div>
-                <div class="single-placeholder">
-                    <div class="placeholder-data">
-                        <span class="placeholder-icon">💉</span>
-                        <strong>Vaccination Tracker</strong>
-                        <p>Track doses, reminders, and upcoming vaccines here.</p>
-                    </div>
+                <div class="vaccine-list">
+
+  <div class="vaccine-item">
+    <strong>COVID Booster</strong>
+    <span>Recommended yearly</span>
+  </div>
+
+  <div class="vaccine-item">
+    <strong>Tetanus</strong>
+    <span>Every 10 years</span>
+  </div>
+
+  <div class="vaccine-item">
+    <strong>Flu Shot</strong>
+    <span>Annual</span>
+  </div>
+
+</div>
+
+<button class="primary-btn"
+onclick="window.location.href='/chatbot'">
+  Ask AI about vaccines
+</button>
                 </div>
             </div>
 
@@ -299,12 +348,26 @@
                     <h3>Health Profile</h3>
                     <span class="panel-badge">Profile</span>
                 </div>
-                <div class="single-placeholder">
-                    <div class="placeholder-data">
-                        <span class="placeholder-icon">🧬</span>
-                        <strong>Health Profile</strong>
-                        <p>Add blood group, allergies, conditions, and emergency data here.</p>
-                    </div>
+                <div class="profile-grid">
+
+  <div class="profile-box">
+    <span>Age</span>
+    <strong>{{ profile.age if profile else "--" }}</strong>
+  </div>
+
+  <div class="profile-box">
+    <span>Height</span>
+    <strong>{{ profile.height if profile else "--" }} cm</strong>
+  </div>
+
+  <div class="profile-box">
+    <span>Weight</span>
+    <strong>{{ profile.weight if profile else "--" }} kg</strong>
+  </div>
+
+</div>
+
+<a href="/fill" class="primary-link-btn">Edit Profile</a>
                 </div>
             </div>
 
