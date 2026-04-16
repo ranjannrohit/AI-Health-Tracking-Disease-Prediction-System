@@ -636,98 +636,36 @@ def logout():
 # ============================
 # CHATBOT (LOGIN PROTECTED)
 # ============================
-@app.route("/chatbot", methods=["GET"])
-@login_required
-def chatbot_page():
-    return render_template("chatbot.html")
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
-    user_message = request.form.get("message", "").lower()
+    try:
+        data = request.get_json()
+        user_message = data.get("message", "").lower()
 
-    # 🔥 Knowledge base (expandable)
-    knowledge_base = {
+        # 🔥 SIMPLE WORKING LOGIC
+        if "fever" in user_message:
+            reply = "Fever is usually due to infection. Stay hydrated and rest."
 
-        # GENERAL
-        "hello": "Hello! How can I help you with your health today?",
-        "hi": "Hi there! Ask me anything about your health.",
-        "how are you": "I'm here to help you stay healthy 😊",
+        elif "cold" in user_message or "cough" in user_message:
+            reply = "Common cold is viral. Drink warm fluids."
 
-        # FEVER
-        "fever": "Fever is usually due to infection. Stay hydrated and rest. If it persists, consult a doctor.",
-        "high fever": "High fever above 102°F needs medical attention.",
-        "fever treatment": "Take rest, fluids, and paracetamol if needed.",
+        elif "diet" in user_message or "food" in user_message:
+            reply = "Eat balanced meals with fruits and vegetables."
 
-        # COLD / COUGH
-        "cold": "Common cold is viral. Drink warm fluids and rest.",
-        "cough": "Cough may be due to infection or allergy. Steam inhalation helps.",
-        "dry cough": "Dry cough can be due to irritation. Stay hydrated.",
+        elif "exercise" in user_message or "gym" in user_message:
+            reply = "Do 30 minutes of daily exercise."
 
-        # DIET
-        "diet": "Eat balanced meals with protein, fruits, vegetables, and water.",
-        "healthy food": "Include green vegetables, fruits, and whole grains.",
-        "weight loss": "Reduce sugar, eat protein, and exercise daily.",
+        elif "headache" in user_message or "head" in user_message:
+            reply = "Headache may be due to stress or dehydration."
 
-        # EXERCISE
-        "exercise": "30 minutes daily exercise is recommended.",
-        "gym": "Start with light workouts and increase gradually.",
-        "yoga": "Yoga improves flexibility and reduces stress.",
+        else:
+            reply = "Tell me your symptoms and I’ll help you."
 
-        # HEART
-        "heart": "Maintain low cholesterol, exercise regularly, and avoid smoking.",
-        "heart disease": "Risk increases with poor lifestyle. Stay active and eat healthy.",
+        return jsonify({"bot": reply})
 
-        # DIABETES
-        "diabetes": "Control sugar intake, exercise daily, and monitor glucose.",
-        "high sugar": "Avoid sweets and processed food.",
-
-        # STRESS
-        "stress": "Practice meditation, yoga, and take proper sleep.",
-        "anxiety": "Deep breathing and relaxation help reduce anxiety.",
-
-        # SLEEP
-        "sleep": "Sleep at least 7-8 hours daily.",
-        "insomnia": "Avoid screens before bed and maintain routine.",
-
-        # WATER
-        "water": "Drink 2-3 liters of water daily.",
-        "hydration": "Stay hydrated especially in hot weather.",
-
-        # IMMUNITY
-        "immunity": "Eat fruits, vegetables, and exercise regularly.",
-        "boost immunity": "Vitamin C, sleep, and exercise help.",
-
-        # HEADACHE
-        "headache": "Rest and hydration help. If frequent, consult doctor.",
-        "migraine": "Avoid triggers like stress and bright light.",
-
-        # STOMACH
-        "stomach pain": "Could be indigestion. Avoid heavy food.",
-        "acidity": "Avoid spicy food and eat on time.",
-
-        # SKIN
-        "skin": "Drink water and maintain hygiene.",
-        "pimples": "Avoid oily food and keep skin clean.",
-
-        # EMERGENCY
-        "emergency": "Call ambulance (108 in India) immediately.",
-        "chest pain": "Seek immediate medical help.",
-
-        # DEFAULT
-        "default": "I'm here to help with health questions. Try asking about fever, diet, exercise, or symptoms."
-    }
-
-    # 🔍 Matching logic
-    # 🔍 Matching logic (FIXED)
-    for key in knowledge_base:
-     keywords = key.split()
-
-    for word in keywords:
-        if word in user_message:
-            return jsonify({"bot": knowledge_base[key]})
-
-# ✅ default fallback
-        return jsonify({"bot": knowledge_base["default"]})
-    
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"bot": "Server error"})
         
 # ============================
 # NEARBY HOSPITALS (ONLY ONE ROUTE)
